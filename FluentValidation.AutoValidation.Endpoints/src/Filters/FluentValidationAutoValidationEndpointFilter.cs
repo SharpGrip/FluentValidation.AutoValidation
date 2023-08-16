@@ -36,7 +36,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters
                             errors.Add(errorGrouping.Key, errorGrouping.Select(error => error.ErrorMessage).ToArray());
                         }
 
-                        return TypedResults.ValidationProblem(errors);
+                        return Results.ValidationProblem(errors);
                     }
                 }
             }
