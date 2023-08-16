@@ -1,0 +1,68 @@
+name: FluentValidation.AutoValidation [Build]
+
+env:
+  JAVA_VERSION: 17
+  JAVA_DISTRIBUTION: microsoft
+  DOTNET_VERSION: 7.0.x
+  DOTNET_BUILD_CONFIGURATION: Release
+  SONAR_PATH: .\.sonar\scanner
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  SONAR_HOST: https://sonarcloud.io
+  SONAR_ORGANIZATION: sharpgrip
+  SONAR_PROJECT: SharpGrip_FluentValidation.AutoValidation
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'master'
+      - 'develop'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install dotnet-coverage
+        shell: powershell
+        run: dotnet tool install --global dotnet-coverage
+
+      - name: Install SonarCloud scanner
+        shell: powershell
+        run: |
+          New-Item -Path ${{ env.SONAR_PATH }} -ItemType Directory -Force
+          dotnet tool update dotnet-sonarscanner --tool-path ${{ env.SONAR_PATH }}
+
+      - name: Build solution
+        run: dotnet build -c ${{ env.DOTNET_BUILD_CONFIGURATION }} /warnaserror
+
+      - name: Test solution
+        run: dotnet test --no-build -c ${{ env.DOTNET_BUILD_CONFIGURATION }} --verbosity normal
+
+      - name: Cleanup solution
+        run: dotnet clean
+
+      - name: Analyze solution
+        shell: powershell
+        run: |
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"${{ env.SONAR_PROJECT }}" /o:"${{ env.SONAR_ORGANIZATION }}" /d:sonar.token="${{ env.SONAR_TOKEN }}" /d:sonar.host.url="${{ env.SONAR_HOST }}" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
+          dotnet build -c ${{ env.DOTNET_BUILD_CONFIGURATION }}
+          dotnet-coverage collect "dotnet test -c ${{ env.DOTNET_BUILD_CONFIGURATION }}" -f xml -o "coverage.xml"
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ env.SONAR_TOKEN }}"

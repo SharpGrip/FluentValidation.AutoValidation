@@ -1,0 +1,7 @@
+.idea/
+.nuget/
+NuGet/
+[Oo]bj/
+[Bb]in/
+.DS_Store
+*.DotSettings.user

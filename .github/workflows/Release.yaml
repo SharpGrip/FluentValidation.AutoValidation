@@ -1,0 +1,34 @@
+name: FluentValidation.AutoValidation [Release]
+
+env:
+  DOTNET_VERSION: 7.0.x
+  DOTNET_BUILD_CONFIGURATION: Release
+  DOTNET_PACKAGES_OUTPUT_DIRECTORY: .nuget
+  NUGET_SOURCE: https://api.nuget.org/v3/index.json
+  NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Pack packages
+        run: dotnet pack --configuration ${{ env.DOTNET_BUILD_CONFIGURATION }} --output "${{ env.DOTNET_PACKAGES_OUTPUT_DIRECTORY }}"
+
+      - name: Push packages
+        run: dotnet nuget push "${{ env.DOTNET_PACKAGES_OUTPUT_DIRECTORY }}/*.nupkg" --source ${{ env.NUGET_SOURCE }} --api-key ${{ env.NUGET_API_KEY }}

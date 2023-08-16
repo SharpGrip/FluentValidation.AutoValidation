@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <RootNamespace>SharpGrip.FluentValidation.AutoValidation.Endpoints</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <AssemblyName>SharpGrip.FluentValidation.AutoValidation.Endpoints</AssemblyName>
+        <PackageId>SharpGrip.FluentValidation.AutoValidation.Endpoints</PackageId>
+        <Title>SharpGrip FluentValidation AutoValidation Endpoints</Title>
+        <Description>SharpGrip FluentValidation AutoValidation Endpoints is an extension of the FluentValidation library enabling automatic asynchronous validation in minimal APIs (endpoints).</Description>
+        <PackageTags>sharpgrip;validation;fluent-validation;minimal-api</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\FluentValidation.AutoValidation.Shared\FluentValidation.AutoValidation.Shared.csproj" />
+    </ItemGroup>
+
+</Project>

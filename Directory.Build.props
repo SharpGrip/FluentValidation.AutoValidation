@@ -1,0 +1,21 @@
+<Project>
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <LangVersion>8.0</LangVersion>
+        <NoWarn>NU1701</NoWarn>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackageVersion>1.0.0-beta1</PackageVersion>
+        <Company>SharpGrip</Company>
+        <Authors>SharpGrip</Authors>
+        <Copyright>SharpGrip</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/SharpGrip/FluentValidation.AutoValidation</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+</Project>
