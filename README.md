@@ -23,7 +23,7 @@ their projects.
 
 Register your validators with the Microsoft DI service container, for instructions on settings that up please see https://docs.fluentvalidation.net/en/latest/di.html.
 
-### MVC controllers
+### MVC controllers [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FluentValidation.AutoValidation.Mvc)](https://www.nuget.org/packages/SharpGrip.FluentValidation.AutoValidation.Mvc)
 
 For MVC controllers reference NuGet package `SharpGrip.FluentValidation.AutoValidation.Mvc` (https://www.nuget.org/packages/SharpGrip.FluentValidation.AutoValidation.Mvc).
 
@@ -33,7 +33,7 @@ using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 builder.Services.AddFluentValidationAutoValidation();
 ```
 
-### Minimal APIs
+### Minimal APIs [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FluentValidation.AutoValidation.Endpoints)](https://www.nuget.org/packages/SharpGrip.FluentValidation.AutoValidation.Endpoints)
 
 For minimal APIs (endpoints) reference NuGet package `SharpGrip.FluentValidation.AutoValidation.Endpoints` (https://www.nuget.org/packages/SharpGrip.FluentValidation.AutoValidation.Endpoints).
 
