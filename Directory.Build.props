@@ -3,6 +3,7 @@
         <Nullable>enable</Nullable>
         <LangVersion>8.0</LangVersion>
         <NoWarn>NU1701</NoWarn>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
@@ -17,5 +18,9 @@
         <PackageProjectUrl>https://sharpgrip.net</PackageProjectUrl>
         <RepositoryUrl>https://github.com/SharpGrip/FluentValidation.AutoValidation</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     </PropertyGroup>
 </Project>

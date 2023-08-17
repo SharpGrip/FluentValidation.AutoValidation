@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Options;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Enums;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
 
 namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
@@ -11,17 +16,29 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
     public class FluentValidationAutoValidationActionFilter : IAsyncActionFilter
     {
         private readonly IServiceProvider serviceProvider;
+        private readonly AutoValidationMvcConfiguration autoValidationMvcConfiguration;
 
-        public FluentValidationAutoValidationActionFilter(IServiceProvider serviceProvider)
+        public FluentValidationAutoValidationActionFilter(IServiceProvider serviceProvider, IOptions<AutoValidationMvcConfiguration> autoValidationMvcConfiguration)
         {
             this.serviceProvider = serviceProvider;
+            this.autoValidationMvcConfiguration = autoValidationMvcConfiguration.Value;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (context.Controller is ControllerBase controllerBase)
             {
-                foreach (var parameter in context.ActionDescriptor.Parameters)
+                var actionDescriptor = context.ActionDescriptor;
+
+                // @todo figure out a better way to retrieve the attribute since using the `context.ActionDescriptor.EndpointMetadata` is not recommended for application code
+                if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotation && !actionDescriptor.EndpointMetadata.OfType<FluentValidationAutoValidationAttribute>().Any())
+                {
+                    await next();
+
+                    return;
+                }
+
+                foreach (var parameter in actionDescriptor.Parameters)
                 {
                     var subject = context.ActionArguments[parameter.Name];
                     var parameterType = parameter.ParameterType;
