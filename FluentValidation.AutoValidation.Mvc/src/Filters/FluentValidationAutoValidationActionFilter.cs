@@ -31,7 +31,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                 var actionDescriptor = context.ActionDescriptor;
 
                 // @todo figure out a better way to retrieve the attribute since using the `context.ActionDescriptor.EndpointMetadata` is not recommended for application code
-                if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotation && !actionDescriptor.EndpointMetadata.OfType<FluentValidationAutoValidationAttribute>().Any())
+                if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && !actionDescriptor.EndpointMetadata.OfType<FluentValidationAutoValidationAttribute>().Any())
                 {
                     await next();
 

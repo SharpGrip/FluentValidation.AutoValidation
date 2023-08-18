@@ -1,9 +1,11 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Filters;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Validation;
@@ -20,17 +22,21 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions
         /// <returns>The service collection.</returns>
         public static IServiceCollection AddFluentValidationAutoValidation(this IServiceCollection serviceCollection, Action<AutoValidationMvcConfiguration>? autoValidationMvcConfiguration = null)
         {
-            var defaultAutoValidationMvcConfiguration = new AutoValidationMvcConfiguration();
+            var configuration = new AutoValidationMvcConfiguration();
 
             if (autoValidationMvcConfiguration != null)
             {
-                autoValidationMvcConfiguration.Invoke(defaultAutoValidationMvcConfiguration);
+                autoValidationMvcConfiguration.Invoke(configuration);
                 serviceCollection.Configure(autoValidationMvcConfiguration);
             }
 
-            if (defaultAutoValidationMvcConfiguration.DisableDataAnnotationsValidation)
+            if (configuration.DisableBuiltInModelValidation)
             {
-                serviceCollection.AddSingleton<IObjectModelValidator, NullObjectModelValidator>();
+                serviceCollection.AddSingleton<IObjectModelValidator, FluentValidationAutoValidationObjectModelValidator>(serviceProvider =>
+                    new FluentValidationAutoValidationObjectModelValidator(
+                        serviceProvider.GetRequiredService<IModelMetadataProvider>(),
+                        serviceProvider.GetRequiredService<IOptions<MvcOptions>>().Value.ModelValidatorProviders,
+                        configuration.DisableBuiltInModelValidation));
             }
 
             // Create a default instance of the `ModelStateInvalidFilter` to access the non static property `Order` in a static context.
