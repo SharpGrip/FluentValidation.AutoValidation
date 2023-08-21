@@ -40,24 +40,26 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                 foreach (var parameter in actionDescriptor.Parameters)
                 {
-                    var subject = context.ActionArguments[parameter.Name];
-                    var parameterType = parameter.ParameterType;
-
-                    // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-                    var bindingSource = parameter.BindingInfo?.BindingSource;
-
-                    // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-                    if (subject != null && (bindingSource == BindingSource.Body || (bindingSource == BindingSource.Query && parameterType.IsClass)))
+                    if (context.ActionArguments.TryGetValue(parameter.Name, out var subject))
                     {
-                        if (serviceProvider.GetValidator(parameterType) is IValidator validator)
-                        {
-                            var validationResult = await validator.ValidateAsync(new ValidationContext<object>(subject), context.HttpContext.RequestAborted);
+                        var parameterType = parameter.ParameterType;
 
-                            if (!validationResult.IsValid)
+                        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+                        var bindingSource = parameter.BindingInfo?.BindingSource;
+
+                        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+                        if (subject != null && (bindingSource == BindingSource.Body || (bindingSource == BindingSource.Query && parameterType.IsClass)))
+                        {
+                            if (serviceProvider.GetValidator(parameterType) is IValidator validator)
                             {
-                                foreach (var error in validationResult.Errors)
+                                var validationResult = await validator.ValidateAsync(new ValidationContext<object>(subject), context.HttpContext.RequestAborted);
+
+                                if (!validationResult.IsValid)
                                 {
-                                    context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                                    foreach (var error in validationResult.Errors)
+                                    {
+                                        context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                                    }
                                 }
                             }
                         }

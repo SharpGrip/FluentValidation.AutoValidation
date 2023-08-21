@@ -21,7 +21,7 @@ their projects.
 
 ## Installation
 
-Register your validators with the Microsoft DI service container, for instructions on settings that up please see https://docs.fluentvalidation.net/en/latest/di.html.
+Register your validators with the Microsoft DI service container, for instructions on setting that up please see https://docs.fluentvalidation.net/en/latest/di.html.
 
 ### MVC controllers [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FluentValidation.AutoValidation.Mvc)](https://www.nuget.org/packages/SharpGrip.FluentValidation.AutoValidation.Mvc)
 
