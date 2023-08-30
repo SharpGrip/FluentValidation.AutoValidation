@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -30,8 +30,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
             {
                 var actionDescriptor = context.ActionDescriptor;
 
-                // @todo figure out a better way to retrieve the attribute since using the `context.ActionDescriptor.EndpointMetadata` is not recommended for application code
-                if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && !actionDescriptor.EndpointMetadata.OfType<FluentValidationAutoValidationAttribute>().Any())
+                if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && context.Controller.GetType().GetCustomAttribute<FluentValidationAutoValidationAttribute>() == null)
                 {
                     await next();
 
