@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
@@ -30,7 +31,9 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
             {
                 var actionDescriptor = context.ActionDescriptor;
 
-                if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && context.Controller.GetType().GetCustomAttribute<FluentValidationAutoValidationAttribute>() == null)
+                if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations &&
+                    (actionDescriptor as ControllerActionDescriptor)?.MethodInfo.GetCustomAttribute<FluentValidationAutoValidationAttribute>() == null
+                    && context.Controller.GetType().GetCustomAttribute<FluentValidationAutoValidationAttribute>() == null)
                 {
                     await next();
 
