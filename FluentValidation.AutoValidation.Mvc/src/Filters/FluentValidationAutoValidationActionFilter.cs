@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -29,9 +30,9 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
             if (context.Controller is ControllerBase controllerBase)
             {
                 var actionDescriptor = context.ActionDescriptor;
+                var endpoint = context.HttpContext.GetEndpoint();
 
-                // @todo figure out a better way to retrieve the attribute since using the `context.ActionDescriptor.EndpointMetadata` is not recommended for application code
-                if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && !actionDescriptor.EndpointMetadata.OfType<FluentValidationAutoValidationAttribute>().Any())
+                if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && !(endpoint?.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any() ?? false))
                 {
                     await next();
 

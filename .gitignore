@@ -5,3 +5,4 @@ NuGet/
 [Bb]in/
 .DS_Store
 *.DotSettings.user
+.vs/
