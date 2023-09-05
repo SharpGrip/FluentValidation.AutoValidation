@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
@@ -12,7 +11,6 @@ using SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Enums;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
-
 
 namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 {
@@ -32,8 +30,9 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
             if (context.Controller is ControllerBase controllerBase)
             {
                 var actionDescriptor = context.ActionDescriptor;
+                var endpoint = context.HttpContext.GetEndpoint();
 
-                if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && !context.HttpContext.GetEndpoint().Metadata.OfType<FluentValidationAutoValidationAttribute>().Any())
+                if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && !(endpoint?.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any() ?? false))
                 {
                     await next();
 
