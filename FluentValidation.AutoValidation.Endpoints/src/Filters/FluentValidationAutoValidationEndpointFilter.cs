@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -38,14 +36,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters
                             return fluentValidationAutoValidationResultFactory.CreateResult(context, validationResult);
                         }
 
-                        var errors = new Dictionary<string, string[]>();
-
-                        foreach (var errorGrouping in validationResult.Errors.GroupBy(error => error.PropertyName))
-                        {
-                            errors.Add(errorGrouping.Key, errorGrouping.Select(error => error.ErrorMessage).ToArray());
-                        }
-
-                        return TypedResults.ValidationProblem(errors);
+                        return new FluentValidationAutoValidationDefaultResultFactory().CreateResult(context, validationResult);
                     }
                 }
             }

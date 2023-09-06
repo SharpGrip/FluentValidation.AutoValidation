@@ -28,7 +28,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions
             // Add the default result factory.
             serviceCollection.AddScoped<IFluentValidationAutoValidationResultFactory, FluentValidationAutoValidationDefaultResultFactory>();
 
-            // If the custom result factory is not null, replace the default result factory with the overriden result factory.
+            // If the custom result factory is not null, replace the default result factory with the overridden result factory.
             if (configuration.OverriddenResultFactory != null)
             {
                 serviceCollection.Replace(new ServiceDescriptor(typeof(IFluentValidationAutoValidationResultFactory), configuration.OverriddenResultFactory, ServiceLifetime.Scoped));
