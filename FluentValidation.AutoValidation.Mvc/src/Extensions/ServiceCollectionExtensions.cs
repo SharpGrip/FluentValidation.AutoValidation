@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Filters;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Validation;
 
 namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions
@@ -15,7 +17,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds asynchronous MVC Fluent Validation automatic validation to the specified <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection" />.
+        /// Adds asynchronous MVC Fluent Validation automatic validation to the specified <see cref="IServiceCollection" />.
         /// </summary>
         /// <param name="serviceCollection">The service collection.</param>
         /// <param name="autoValidationMvcConfiguration">The configuration delegate used to configure the FluentValidation AutoValidation MVC validation.</param>
@@ -37,6 +39,15 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions
                         serviceProvider.GetRequiredService<IModelMetadataProvider>(),
                         serviceProvider.GetRequiredService<IOptions<MvcOptions>>().Value.ModelValidatorProviders,
                         configuration.DisableBuiltInModelValidation));
+            }
+
+            // Add the default result factory.
+            serviceCollection.AddScoped<IFluentValidationAutoValidationResultFactory, FluentValidationAutoValidationDefaultResultFactory>();
+
+            // If the custom result factory is not null, replace the default result factory with the overriden result factory.
+            if (configuration.OverriddenResultFactory != null)
+            {
+                serviceCollection.Replace(new ServiceDescriptor(typeof(IFluentValidationAutoValidationResultFactory), configuration.OverriddenResultFactory, ServiceLifetime.Scoped));
             }
 
             // Create a default instance of the `ModelStateInvalidFilter` to access the non static property `Order` in a static context.

@@ -10,7 +10,7 @@
         <PackageId>SharpGrip.FluentValidation.AutoValidation.Shared</PackageId>
         <Title>SharpGrip FluentValidation AutoValidation Shared</Title>
         <Description>SharpGrip FluentValidation AutoValidation is an extension of the FluentValidation library enabling automatic asynchronous validation in MVC controllers and minimal APIs (endpoints).</Description>
-        <PackageTags>sharpgrip;validation;fluent-validation;mvc;minimal-api</PackageTags>
+        <PackageTags>sharpgrip;validation;fluent-validation;mvc;endpoints;minimal-api</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>

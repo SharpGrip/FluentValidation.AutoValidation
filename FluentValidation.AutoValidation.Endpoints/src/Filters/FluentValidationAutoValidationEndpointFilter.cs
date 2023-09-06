@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using SharpGrip.FluentValidation.AutoValidation.Endpoints.Results;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
 
 namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters
@@ -29,6 +31,13 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters
 
                     if (!validationResult.IsValid)
                     {
+                        var fluentValidationAutoValidationResultFactory = serviceProvider.GetService<IFluentValidationAutoValidationResultFactory>();
+
+                        if (fluentValidationAutoValidationResultFactory != null)
+                        {
+                            return fluentValidationAutoValidationResultFactory.CreateResult(context, validationResult);
+                        }
+
                         var errors = new Dictionary<string, string[]>();
 
                         foreach (var errorGrouping in validationResult.Errors.GroupBy(error => error.PropertyName))
@@ -36,7 +45,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters
                             errors.Add(errorGrouping.Key, errorGrouping.Select(error => error.ErrorMessage).ToArray());
                         }
 
-                        return Results.ValidationProblem(errors);
+                        return TypedResults.ValidationProblem(errors);
                     }
                 }
             }
