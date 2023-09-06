@@ -8,7 +8,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions
     public static class EndpointRouteExtensions
     {
         /// <summary>
-        /// Adds asynchronous minimal API automatic validation to the specified <see cref="T:Microsoft.AspNetCore.Builder.RouteHandlerBuilder" />.
+        /// Adds asynchronous minimal API automatic validation to the specified <see cref="RouteHandlerBuilder" />.
         /// </summary>
         /// <param name="routeHandlerBuilder">The route handler builder.</param>
         /// <returns>The route handler builder.</returns>
@@ -20,7 +20,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions
         }
 
         /// <summary>
-        /// Adds asynchronous minimal API Fluent Validation automatic validation to the specified <see cref="T:Microsoft.AspNetCore.Routing.RouteGroupBuilder" />.
+        /// Adds asynchronous minimal API Fluent Validation automatic validation to the specified <see cref="RouteGroupBuilder" />.
         /// </summary>
         /// <param name="routeGroupBuilder">The route group builder.</param>
         /// <returns>The route group builder.</returns>

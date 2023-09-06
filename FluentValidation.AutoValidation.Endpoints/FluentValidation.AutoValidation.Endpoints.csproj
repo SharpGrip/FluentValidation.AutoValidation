@@ -10,7 +10,7 @@
         <PackageId>SharpGrip.FluentValidation.AutoValidation.Endpoints</PackageId>
         <Title>SharpGrip FluentValidation AutoValidation Endpoints</Title>
         <Description>SharpGrip FluentValidation AutoValidation Endpoints is an extension of the FluentValidation library enabling automatic asynchronous validation in minimal APIs (endpoints).</Description>
-        <PackageTags>sharpgrip;validation;fluent-validation;minimal-api</PackageTags>
+        <PackageTags>sharpgrip;validation;fluent-validation;endpoints;minimal-api</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>

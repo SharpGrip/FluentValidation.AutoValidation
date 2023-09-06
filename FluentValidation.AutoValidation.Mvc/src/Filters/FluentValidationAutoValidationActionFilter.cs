@@ -4,12 +4,14 @@ using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Enums;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
 
 namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
@@ -17,11 +19,15 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
     public class FluentValidationAutoValidationActionFilter : IAsyncActionFilter
     {
         private readonly IServiceProvider serviceProvider;
+        private readonly IFluentValidationAutoValidationResultFactory fluentValidationAutoValidationResultFactory;
         private readonly AutoValidationMvcConfiguration autoValidationMvcConfiguration;
 
-        public FluentValidationAutoValidationActionFilter(IServiceProvider serviceProvider, IOptions<AutoValidationMvcConfiguration> autoValidationMvcConfiguration)
+        public FluentValidationAutoValidationActionFilter(IServiceProvider serviceProvider,
+            IFluentValidationAutoValidationResultFactory fluentValidationAutoValidationResultFactory,
+            IOptions<AutoValidationMvcConfiguration> autoValidationMvcConfiguration)
         {
             this.serviceProvider = serviceProvider;
+            this.fluentValidationAutoValidationResultFactory = fluentValidationAutoValidationResultFactory;
             this.autoValidationMvcConfiguration = autoValidationMvcConfiguration.Value;
         }
 
@@ -29,8 +35,8 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
         {
             if (context.Controller is ControllerBase controllerBase)
             {
-                var actionDescriptor = context.ActionDescriptor;
                 var endpoint = context.HttpContext.GetEndpoint();
+                var controllerActionDescriptor = (ControllerActionDescriptor) context.ActionDescriptor;
 
                 if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && !(endpoint?.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any() ?? false))
                 {
@@ -39,16 +45,13 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                     return;
                 }
 
-                foreach (var parameter in actionDescriptor.Parameters)
+                foreach (var parameter in controllerActionDescriptor.Parameters)
                 {
                     if (context.ActionArguments.TryGetValue(parameter.Name, out var subject))
                     {
                         var parameterType = parameter.ParameterType;
-
-                        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
                         var bindingSource = parameter.BindingInfo?.BindingSource;
 
-                        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
                         if (subject != null && (bindingSource == BindingSource.Body || (bindingSource == BindingSource.Query && parameterType.IsClass)))
                         {
                             if (serviceProvider.GetValidator(parameterType) is IValidator validator)
@@ -69,9 +72,9 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                 if (!context.ModelState.IsValid)
                 {
-                    var validationProblem = controllerBase.ProblemDetailsFactory.CreateValidationProblemDetails(context.HttpContext, context.ModelState);
+                    var validationProblemDetails = controllerBase.ProblemDetailsFactory.CreateValidationProblemDetails(context.HttpContext, context.ModelState);
 
-                    context.Result = new BadRequestObjectResult(validationProblem);
+                    context.Result = fluentValidationAutoValidationResultFactory.CreateActionResult(context, validationProblemDetails);
 
                     return;
                 }

@@ -1,14 +1,17 @@
-﻿namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Enums
+﻿using Microsoft.AspNetCore.Mvc;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes;
+
+namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Enums
 {
     public enum ValidationStrategy
     {
         /// <summary>
-        /// Enables asynchronous automatic validation on all controllers inheriting from <see cref="T:Microsoft.AspNetCore.Mvc.ControllerBase"/>.
+        /// Enables asynchronous automatic validation on all controllers inheriting from <see cref="ControllerBase"/>.
         /// </summary>
         All = 1,
 
         /// <summary>
-        /// Enables asynchronous automatic validation on controllers inheriting from <see cref="T:Microsoft.AspNetCore.Mvc.ControllerBase"/> decorated with a <see cref="T:SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes.FluentValidationAutoValidationAttribute"/> attribute.
+        /// Enables asynchronous automatic validation on controllers inheriting from <see cref="ControllerBase"/> decorated with a <see cref="FluentValidationAutoValidationAttribute"/> attribute.
         /// </summary>
         Annotations = 2
     }
