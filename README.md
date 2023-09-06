@@ -14,7 +14,7 @@
 
 SharpGrip FluentValidation AutoValidation is an extension of the [FluentValidation](https://github.com/FluentValidation/FluentValidation) (v10+) library enabling automatic asynchronous validation in MVC controllers and minimal APIs (endpoints).
 The library [FluentValidation.AspNetCore](https://github.com/FluentValidation/FluentValidation.AspNetCore) is no longer being maintained and is unsupported. As a result, support for automatic validation provided by this library is no longer available.
-This library re-introduces this functionality for MVC controllers and introduces automation validation for minimal APIs (endpoints). It enables developers to easily implement automatic validation in their projects.
+This library re-introduces this functionality for MVC controllers and introduces automatic validation for minimal APIs (endpoints). It enables developers to easily implement automatic validation in their projects.
 
 ## Installation
 
