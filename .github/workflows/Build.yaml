@@ -3,7 +3,7 @@ name: FluentValidation.AutoValidation [Build]
 env:
   JAVA_VERSION: 17
   JAVA_DISTRIBUTION: microsoft
-  DOTNET_VERSION: 7.0.x
+  DOTNET_VERSION: 8.0.x
   DOTNET_BUILD_CONFIGURATION: Release
   SONAR_PATH: .\.sonar\scanner
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
