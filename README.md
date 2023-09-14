@@ -71,6 +71,15 @@ builder.Services.AddFluentValidationAutoValidation(configuration =>
     // Only validate controllers decorated with the `FluentValidationAutoValidation` attribute.
     configuration.ValidationStrategy = ValidationStrategy.Annotation;
 
+    // Enable validation for parameters bound from the `BindingSource.Body` binding source.
+    configuration.EnableBodyBindingSourceAutomaticValidation = true;
+
+    // Enable validation for parameters bound from the `BindingSource.Form` binding source.
+    configuration.EnableFormBindingSourceAutomaticValidation = true;
+
+    // Enable validation for parameters bound from the `BindingSource.Query` binding source.
+    configuration.EnableQueryBindingSourceAutomaticValidation = true;
+
     // Replace the default result factory with a custom implementation.
     configuration.OverrideDefaultResultFactoryWith<CustomResultFactory>();
 });
