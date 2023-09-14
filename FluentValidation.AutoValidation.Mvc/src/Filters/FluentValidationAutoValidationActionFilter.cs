@@ -52,7 +52,10 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                         var parameterType = parameter.ParameterType;
                         var bindingSource = parameter.BindingInfo?.BindingSource;
 
-                        if (subject != null && (bindingSource == BindingSource.Body || (bindingSource == BindingSource.Query && parameterType.IsClass)))
+                        if (subject != null && parameterType.IsCustomType() &&
+                            ((autoValidationMvcConfiguration.EnableBodyBindingSourceAutomaticValidation && bindingSource == BindingSource.Body) ||
+                             (autoValidationMvcConfiguration.EnableFormBindingSourceAutomaticValidation && bindingSource == BindingSource.Form) ||
+                             (autoValidationMvcConfiguration.EnableQueryBindingSourceAutomaticValidation && bindingSource == BindingSource.Query)))
                         {
                             if (serviceProvider.GetValidator(parameterType) is IValidator validator)
                             {
@@ -67,6 +70,14 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                                 }
                             }
                         }
+                    }
+                }
+
+                if (autoValidationMvcConfiguration.DisableBuiltInModelValidation)
+                {
+                    foreach (var modelStateEntry in context.ModelState.Values.Where(modelStateEntry => modelStateEntry.ValidationState == ModelValidationState.Unvalidated))
+                    {
+                        modelStateEntry.ValidationState = ModelValidationState.Skipped;
                     }
                 }
 
