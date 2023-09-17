@@ -11,10 +11,14 @@ namespace FluentValidation.AutoValidation.Mvc.Tests.Configuration
         [Fact]
         public void TestOverrideDefaultResultFactoryWith()
         {
-            var autoValidationMvcConfiguration = new AutoValidationMvcConfiguration();
+            var autoValidationMvcConfiguration = new AutoValidationMvcConfiguration
+            {
+                DisableBuiltInModelValidation = true
+            };
 
             autoValidationMvcConfiguration.OverrideDefaultResultFactoryWith<TestResultFactory>();
 
+            Assert.True(autoValidationMvcConfiguration.DisableBuiltInModelValidation);
             Assert.Equal(typeof(TestResultFactory), autoValidationMvcConfiguration.OverriddenResultFactory);
         }
 

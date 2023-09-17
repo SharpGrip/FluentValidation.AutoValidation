@@ -36,5 +36,4 @@
         <ProjectReference Include="..\..\FluentValidation.AutoValidation.Mvc\FluentValidation.AutoValidation.Mvc.csproj" />
     </ItemGroup>
 
-
 </Project>
