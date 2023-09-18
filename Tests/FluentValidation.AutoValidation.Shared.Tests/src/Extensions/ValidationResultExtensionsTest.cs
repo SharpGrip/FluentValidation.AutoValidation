@@ -25,7 +25,7 @@ public class ValidationResultExtensionsTest
         Assert.Equal(validationProblemErrors, ToValidationProblemErrors(validationResult));
     }
 
-    private Dictionary<string, string[]> ToValidationProblemErrors(ValidationResult validationResult)
+    private static Dictionary<string, string[]> ToValidationProblemErrors(ValidationResult validationResult)
     {
         return validationResult.Errors.GroupBy(validationFailure => validationFailure.PropertyName)
             .ToDictionary(validationFailureGrouping => validationFailureGrouping.Key,

@@ -7,35 +7,34 @@ using SharpGrip.FluentValidation.AutoValidation.Endpoints.Results;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
 using Xunit;
 
-namespace FluentValidation.AutoValidation.Endpoints.Tests.Results
+namespace FluentValidation.AutoValidation.Endpoints.Tests.Results;
+
+public class FluentValidationAutoValidationDefaultResultFactoryTest
 {
-    public class FluentValidationAutoValidationDefaultResultFactoryTest
+    [Fact]
+    public void TestAddFluentValidationAutoValidation_WithConfiguration_DisableBuiltInModelValidation_False()
     {
-        [Fact]
-        public void TestAddFluentValidationAutoValidation_WithConfiguration_DisableBuiltInModelValidation_False()
+        var fluentValidationAutoValidationDefaultResultFactory = new FluentValidationAutoValidationDefaultResultFactory();
+        var endpointFilterInvocationContext = Substitute.For<EndpointFilterInvocationContext>();
+
+        var validationFailures = new List<ValidationFailure>
         {
-            var fluentValidationAutoValidationDefaultResultFactory = new FluentValidationAutoValidationDefaultResultFactory();
-            var endpointFilterInvocationContext = Substitute.For<EndpointFilterInvocationContext>();
+            new(nameof(TestModel.Parameter1), $"'{nameof(TestModel.Parameter1)}' must be empty."),
+            new(nameof(TestModel.Parameter2), $"'{nameof(TestModel.Parameter2)}' must be empty."),
+            new(nameof(TestModel.Parameter3), $"'{nameof(TestModel.Parameter3)}' must be empty.")
+        };
 
-            var validationFailures = new List<ValidationFailure>
-            {
-                new(nameof(TestModel.Parameter1), $"'{nameof(TestModel.Parameter1)}' must be empty."),
-                new(nameof(TestModel.Parameter2), $"'{nameof(TestModel.Parameter2)}' must be empty."),
-                new(nameof(TestModel.Parameter3), $"'{nameof(TestModel.Parameter3)}' must be empty.")
-            };
+        var validationResult = new ValidationResult(validationFailures);
 
-            var validationResult = new ValidationResult(validationFailures);
+        var resultFactoryResult = (ValidationProblem) fluentValidationAutoValidationDefaultResultFactory.CreateResult(endpointFilterInvocationContext, validationResult);
 
-            var resultFactoryResult = (ValidationProblem) fluentValidationAutoValidationDefaultResultFactory.CreateResult(endpointFilterInvocationContext, validationResult);
+        Assert.Equal(resultFactoryResult.ProblemDetails.Errors, validationResult.ToValidationProblemErrors());
+    }
 
-            Assert.Equal(resultFactoryResult.ProblemDetails.Errors, validationResult.ToValidationProblemErrors());
-        }
-
-        private class TestModel
-        {
-            public string? Parameter1 { get; set; }
-            public string? Parameter2 { get; set; }
-            public string? Parameter3 { get; set; }
-        }
+    private class TestModel
+    {
+        public string? Parameter1 { get; set; }
+        public string? Parameter2 { get; set; }
+        public string? Parameter3 { get; set; }
     }
 }
