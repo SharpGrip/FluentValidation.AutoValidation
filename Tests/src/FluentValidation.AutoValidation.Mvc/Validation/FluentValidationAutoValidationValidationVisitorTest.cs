@@ -5,7 +5,7 @@ using NSubstitute;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Validation;
 using Xunit;
 
-namespace FluentValidation.AutoValidation.Mvc.Tests.Validation;
+namespace SharpGrip.FluentValidation.AutoValidation.Tests.FluentValidation.AutoValidation.Mvc.Validation;
 
 public class FluentValidationAutoValidationValidationVisitorTest
 {

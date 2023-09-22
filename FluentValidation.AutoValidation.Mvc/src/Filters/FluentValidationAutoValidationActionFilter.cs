@@ -38,7 +38,9 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                 var endpoint = context.HttpContext.GetEndpoint();
                 var controllerActionDescriptor = (ControllerActionDescriptor) context.ActionDescriptor;
 
-                if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && !(endpoint?.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any() ?? false))
+                if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && 
+                    endpoint != null &&
+                    !endpoint.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any())
                 {
                     await next();
 

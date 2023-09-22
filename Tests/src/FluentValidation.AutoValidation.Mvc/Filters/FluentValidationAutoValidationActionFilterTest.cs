@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -17,7 +18,7 @@ using SharpGrip.FluentValidation.AutoValidation.Mvc.Filters;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
 using Xunit;
 
-namespace FluentValidation.AutoValidation.Mvc.Tests.Filters;
+namespace SharpGrip.FluentValidation.AutoValidation.Tests.FluentValidation.AutoValidation.Mvc.Filters;
 
 public class FluentValidationAutoValidationActionFilterTest
 {

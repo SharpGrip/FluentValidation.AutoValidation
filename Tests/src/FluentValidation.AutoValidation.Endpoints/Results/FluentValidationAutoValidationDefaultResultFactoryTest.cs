@@ -7,7 +7,7 @@ using SharpGrip.FluentValidation.AutoValidation.Endpoints.Results;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
 using Xunit;
 
-namespace FluentValidation.AutoValidation.Endpoints.Tests.Results;
+namespace SharpGrip.FluentValidation.AutoValidation.Tests.FluentValidation.AutoValidation.Endpoints.Results;
 
 public class FluentValidationAutoValidationDefaultResultFactoryTest
 {

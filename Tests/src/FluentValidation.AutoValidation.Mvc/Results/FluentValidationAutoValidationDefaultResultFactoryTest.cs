@@ -8,7 +8,7 @@ using NSubstitute;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
 using Xunit;
 
-namespace FluentValidation.AutoValidation.Mvc.Tests.Results;
+namespace SharpGrip.FluentValidation.AutoValidation.Tests.FluentValidation.AutoValidation.Mvc.Results;
 
 public class FluentValidationAutoValidationDefaultResultFactoryTest
 {

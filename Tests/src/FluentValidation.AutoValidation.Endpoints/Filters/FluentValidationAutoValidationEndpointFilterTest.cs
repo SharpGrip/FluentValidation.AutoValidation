@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using NSubstitute;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters;
 using Xunit;
 
-namespace FluentValidation.AutoValidation.Endpoints.Tests.Filters;
+namespace SharpGrip.FluentValidation.AutoValidation.Tests.FluentValidation.AutoValidation.Endpoints.Filters;
 
 public class FluentValidationAutoValidationEndpointFilterTest
 {

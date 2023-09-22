@@ -4,7 +4,7 @@ using SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
 using Xunit;
 
-namespace FluentValidation.AutoValidation.Mvc.Tests.Configuration;
+namespace SharpGrip.FluentValidation.AutoValidation.Tests.FluentValidation.AutoValidation.Mvc.Configuration;
 
 public class AutoValidationMvcConfigurationTest
 {

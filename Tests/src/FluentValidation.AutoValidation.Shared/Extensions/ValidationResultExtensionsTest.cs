@@ -4,7 +4,7 @@ using FluentValidation.Results;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
 using Xunit;
 
-namespace FluentValidation.AutoValidation.Shared.Tests.Extensions;
+namespace SharpGrip.FluentValidation.AutoValidation.Tests.FluentValidation.AutoValidation.Shared.Extensions;
 
 public class ValidationResultExtensionsTest
 {

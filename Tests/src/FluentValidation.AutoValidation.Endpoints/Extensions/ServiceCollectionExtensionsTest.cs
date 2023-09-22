@@ -5,7 +5,7 @@ using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Results;
 using Xunit;
 
-namespace FluentValidation.AutoValidation.Endpoints.Tests.Extensions;
+namespace SharpGrip.FluentValidation.AutoValidation.Tests.FluentValidation.AutoValidation.Endpoints.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {

@@ -8,7 +8,7 @@ using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Validation;
 using Xunit;
 
-namespace FluentValidation.AutoValidation.Mvc.Tests.Extensions;
+namespace SharpGrip.FluentValidation.AutoValidation.Tests.FluentValidation.AutoValidation.Mvc.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {

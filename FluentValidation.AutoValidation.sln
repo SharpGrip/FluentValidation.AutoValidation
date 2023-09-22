@@ -6,11 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentValidation.AutoValida
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentValidation.AutoValidation.Shared", "FluentValidation.AutoValidation.Shared\FluentValidation.AutoValidation.Shared.csproj", "{EFB3047F-34BD-4A84-86B9-52F96E2D240D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentValidation.AutoValidation.Shared.Tests", "Tests\FluentValidation.AutoValidation.Shared.Tests\FluentValidation.AutoValidation.Shared.Tests.csproj", "{08C258A4-84A9-44B9-9306-AD99A1E96050}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentValidation.AutoValidation.Endpoints.Tests", "Tests\FluentValidation.AutoValidation.Endpoints.Tests\FluentValidation.AutoValidation.Endpoints.Tests.csproj", "{75D600AA-1D03-4EE6-AF0A-754DDEFCA47F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentValidation.AutoValidation.Mvc.Tests", "Tests\FluentValidation.AutoValidation.Mvc.Tests\FluentValidation.AutoValidation.Mvc.Tests.csproj", "{785423BC-ADEE-46B2-8B68-8F9D2C0E165D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentValidation.AutoValidation.Tests", "Tests\FluentValidation.AutoValidation.Tests.csproj", "{8E3ACDDB-5344-4B1A-830C-119B1306596C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,17 +26,9 @@ Global
 		{EFB3047F-34BD-4A84-86B9-52F96E2D240D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFB3047F-34BD-4A84-86B9-52F96E2D240D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EFB3047F-34BD-4A84-86B9-52F96E2D240D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{08C258A4-84A9-44B9-9306-AD99A1E96050}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{08C258A4-84A9-44B9-9306-AD99A1E96050}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{08C258A4-84A9-44B9-9306-AD99A1E96050}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{08C258A4-84A9-44B9-9306-AD99A1E96050}.Release|Any CPU.Build.0 = Release|Any CPU
-		{75D600AA-1D03-4EE6-AF0A-754DDEFCA47F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{75D600AA-1D03-4EE6-AF0A-754DDEFCA47F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{75D600AA-1D03-4EE6-AF0A-754DDEFCA47F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{75D600AA-1D03-4EE6-AF0A-754DDEFCA47F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{785423BC-ADEE-46B2-8B68-8F9D2C0E165D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{785423BC-ADEE-46B2-8B68-8F9D2C0E165D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{785423BC-ADEE-46B2-8B68-8F9D2C0E165D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{785423BC-ADEE-46B2-8B68-8F9D2C0E165D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E3ACDDB-5344-4B1A-830C-119B1306596C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E3ACDDB-5344-4B1A-830C-119B1306596C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E3ACDDB-5344-4B1A-830C-119B1306596C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E3ACDDB-5344-4B1A-830C-119B1306596C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
