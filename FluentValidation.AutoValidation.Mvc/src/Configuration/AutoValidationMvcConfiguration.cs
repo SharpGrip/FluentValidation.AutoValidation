@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Enums;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
@@ -18,6 +19,21 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration
         /// Validation strategy <see cref="Enums.ValidationStrategy.Annotations"/> enables asynchronous automatic validation on controllers inheriting from <see cref="ControllerBase"/> decorated (class or method) with a <see cref="FluentValidationAutoValidationAttribute"/> attribute.
         /// </summary>
         public ValidationStrategy ValidationStrategy { get; set; } = ValidationStrategy.All;
+
+        /// <summary>
+        /// Enables asynchronous automatic validation for parameters bound from the <see cref="BindingSource.Body"/> binding source (typically parameters decorated with the [FormBody] attribute).
+        /// </summary>
+        public bool EnableBodyBindingSourceAutomaticValidation { get; set; } = true;
+
+        /// <summary>
+        /// Enables asynchronous automatic validation for parameters bound from the <see cref="BindingSource.Form"/> binding source (typically parameters decorated with the [FromForm] attribute).
+        /// </summary>
+        public bool EnableFormBindingSourceAutomaticValidation { get; set; } = false;
+
+        /// <summary>
+        /// Enables asynchronous automatic validation for parameters bound from the <see cref="BindingSource.Query"/> binding source (typically parameters decorated with the [FormQuery] attribute).
+        /// </summary>
+        public bool EnableQueryBindingSourceAutomaticValidation { get; set; } = true;
 
         /// <summary>
         /// Holds the overridden result factory. This property is meant for infrastructure and should not be used by application code.

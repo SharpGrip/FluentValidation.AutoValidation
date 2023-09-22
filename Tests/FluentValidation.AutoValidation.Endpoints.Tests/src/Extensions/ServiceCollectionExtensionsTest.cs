@@ -1,8 +1,6 @@
 ﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Results;
 using Xunit;
@@ -42,6 +40,7 @@ public class ServiceCollectionExtensionsTest
                                                                  serviceDescriptor.ImplementationInstance?.GetType() == typeof(TImplementation)) &&
                                                                 serviceDescriptor.Lifetime == serviceLifetime);
     }
+    // ReSharper restore ParameterOnlyUsedForPreconditionCheck.Local
 
     // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
     private static void AssertNotContainsServiceDescriptor<TService, TImplementation>(ServiceCollection serviceCollection, ServiceLifetime serviceLifetime)
@@ -52,6 +51,7 @@ public class ServiceCollectionExtensionsTest
                                                                        serviceDescriptor.ImplementationInstance?.GetType() == typeof(TImplementation)) &&
                                                                       serviceDescriptor.Lifetime == serviceLifetime);
     }
+    // ReSharper restore ParameterOnlyUsedForPreconditionCheck.Local
 
     private class TestResultFactory : IFluentValidationAutoValidationResultFactory
     {
