@@ -54,10 +54,12 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                         var parameterType = parameter.ParameterType;
                         var bindingSource = parameter.BindingInfo?.BindingSource;
 
-                        if (subject != null && parameterType.IsCustomType() &&
-                            ((autoValidationMvcConfiguration.EnableBodyBindingSourceAutomaticValidation && bindingSource == BindingSource.Body) ||
+                        if (subject != null 
+                         && parameterType.IsCustomType() 
+                         && ((autoValidationMvcConfiguration.EnableBodyBindingSourceAutomaticValidation && bindingSource == BindingSource.Body) ||
                              (autoValidationMvcConfiguration.EnableFormBindingSourceAutomaticValidation && bindingSource == BindingSource.Form) ||
-                             (autoValidationMvcConfiguration.EnableQueryBindingSourceAutomaticValidation && bindingSource == BindingSource.Query)))
+                             (autoValidationMvcConfiguration.EnableQueryBindingSourceAutomaticValidation && bindingSource == BindingSource.Query) || 
+                             (autoValidationMvcConfiguration.EnableCustomBindingSourceAutomaticValidation && bindingSource == BindingSource.Custom)))
                         {
                             if (serviceProvider.GetValidator(parameterType) is IValidator validator)
                             {
