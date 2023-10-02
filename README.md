@@ -80,6 +80,9 @@ builder.Services.AddFluentValidationAutoValidation(configuration =>
     // Enable validation for parameters bound from the `BindingSource.Query` binding source.
     configuration.EnableQueryBindingSourceAutomaticValidation = true;
 
+    // Enable validation for parameters bound from 'BindingSource.Custom' sources.
+    configuration.EnableCustomBindingSourceAutomaticValidation = true;
+
     // Replace the default result factory with a custom implementation.
     configuration.OverrideDefaultResultFactoryWith<CustomResultFactory>();
 });
