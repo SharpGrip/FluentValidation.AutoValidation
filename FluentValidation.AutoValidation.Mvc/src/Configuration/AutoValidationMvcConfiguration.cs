@@ -39,7 +39,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration
         public bool EnableQueryBindingSourceAutomaticValidation { get; set; } = true;
 
         /// <summary>
-        /// Enables asynchronous automatic validation for parameters bound from the <see cref="BindingSource.Custom"/> binding source.
+        /// Enables asynchronous automatic validation for parameters bound from <see cref="BindingSource.Custom"/> binding sources.
         /// </summary>
         public bool EnableCustomBindingSourceAutomaticValidation { get; set; } = false;
 

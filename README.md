@@ -56,10 +56,10 @@ app.MapPost("/", (SomeOtherModel someOtherModel) => $"Hello again {someOtherMode
 |----------------------------------------------|--------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | DisableBuiltInModelValidation                | `false`                  | Disables the built-in .NET model (data annotations) validation.                                                                                                                                                                                                                                                                                                                                                          |
 | ValidationStrategy                           | `ValidationStrategy.All` | Configures the validation strategy. Validation strategy `ValidationStrategy.All` enables asynchronous automatic validation on all controllers inheriting from `ControllerBase`. Validation strategy `ValidationStrategy.Annotations` enables asynchronous automatic validation on controllers inheriting from `ControllerBase` decorated (class or method) with a `[FluentValidationAutoValidationAttribute]` attribute. |
-| EnableBodyBindingSourceAutomaticValidation   | `true`                   | Enables asynchronous automatic validation for parameters bound from the `BindingSource.Body` binding source (typically parameters decorated with the `[FromBody]` attribute).                                                                                                                                                                                                                                            |
-| EnableFormBindingSourceAutomaticValidation   | `false`                  | Enables asynchronous automatic validation for parameters bound from the `BindingSource.Form` binding source (typically parameters decorated with the `[FromForm]` attribute).                                                                                                                                                                                                                                            |
-| EnableQueryBindingSourceAutomaticValidation  | `true`                   | Enables asynchronous automatic validation for parameters bound from the `BindingSource.Query` binding source (typically parameters decorated with the `[FromQuery]` attribute).                                                                                                                                                                                                                                          |
-| EnableCustomBindingSourceAutomaticValidation | `false`                  | Enables asynchronous automatic validation for parameters bound from the `BindingSource.Custom` binding source.                                                                                                                                                                                                                                                                                                           |
+| EnableBodyBindingSourceAutomaticValidation   | `true`                   | Enables asynchronous automatic validation for parameters bound from `BindingSource.Body` binding sources (typically parameters decorated with the `[FromBody]` attribute).                                                                                                                                                                                                                                               |
+| EnableFormBindingSourceAutomaticValidation   | `false`                  | Enables asynchronous automatic validation for parameters bound from `BindingSource.Form` binding sources (typically parameters decorated with the `[FromForm]` attribute).                                                                                                                                                                                                                                               |
+| EnableQueryBindingSourceAutomaticValidation  | `true`                   | Enables asynchronous automatic validation for parameters bound from `BindingSource.Query` binding sources (typically parameters decorated with the `[FromQuery]` attribute).                                                                                                                                                                                                                                             |
+| EnableCustomBindingSourceAutomaticValidation | `false`                  | Enables asynchronous automatic validation for parameters bound from `BindingSource.Custom` binding sources.                                                                                                                                                                                                                                                                                                              |
 
 ```
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
@@ -72,16 +72,16 @@ builder.Services.AddFluentValidationAutoValidation(configuration =>
     // Only validate controllers decorated with the `FluentValidationAutoValidation` attribute.
     configuration.ValidationStrategy = ValidationStrategy.Annotation;
 
-    // Enable validation for parameters bound from the `BindingSource.Body` binding source.
+    // Enable validation for parameters bound from `BindingSource.Body` binding sources.
     configuration.EnableBodyBindingSourceAutomaticValidation = true;
 
-    // Enable validation for parameters bound from the `BindingSource.Form` binding source.
+    // Enable validation for parameters bound from `BindingSource.Form` binding sources.
     configuration.EnableFormBindingSourceAutomaticValidation = true;
 
-    // Enable validation for parameters bound from the `BindingSource.Query` binding source.
+    // Enable validation for parameters bound from `BindingSource.Query` binding sources.
     configuration.EnableQueryBindingSourceAutomaticValidation = true;
 
-    // Enable validation for parameters bound from 'BindingSource.Custom' sources.
+    // Enable validation for parameters bound from 'BindingSource.Custom' binding sources.
     configuration.EnableCustomBindingSourceAutomaticValidation = true;
 
     // Replace the default result factory with a custom implementation.
