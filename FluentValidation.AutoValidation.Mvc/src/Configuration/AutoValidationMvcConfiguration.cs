@@ -21,18 +21,21 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration
         public ValidationStrategy ValidationStrategy { get; set; } = ValidationStrategy.All;
 
         /// <summary>
-        /// Enables asynchronous automatic validation for parameters bound from the <see cref="BindingSource.Body"/> binding source (typically parameters decorated with the [FormBody] attribute).
+        /// Enables asynchronous automatic validation for parameters bound from the <see cref="BindingSource.Body"/> binding source (typically parameters decorated with the [FromBody] attribute).
         /// </summary>
+        /// <see cref="FromBodyAttribute"/>
         public bool EnableBodyBindingSourceAutomaticValidation { get; set; } = true;
 
         /// <summary>
         /// Enables asynchronous automatic validation for parameters bound from the <see cref="BindingSource.Form"/> binding source (typically parameters decorated with the [FromForm] attribute).
         /// </summary>
+        /// <see cref="FromFormAttribute"/>
         public bool EnableFormBindingSourceAutomaticValidation { get; set; } = false;
 
         /// <summary>
-        /// Enables asynchronous automatic validation for parameters bound from the <see cref="BindingSource.Query"/> binding source (typically parameters decorated with the [FormQuery] attribute).
+        /// Enables asynchronous automatic validation for parameters bound from the <see cref="BindingSource.Query"/> binding source (typically parameters decorated with the [FromQuery] attribute).
         /// </summary>
+        /// <see cref="FromQueryAttribute"/>
         public bool EnableQueryBindingSourceAutomaticValidation { get; set; } = true;
 
         /// <summary>
