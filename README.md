@@ -59,6 +59,7 @@ app.MapPost("/", (SomeOtherModel someOtherModel) => $"Hello again {someOtherMode
 | EnableBodyBindingSourceAutomaticValidation   | `true`                   | Enables asynchronous automatic validation for parameters bound from `BindingSource.Body` binding sources (typically parameters decorated with the `[FromBody]` attribute).                                                                                                                                                                                                                                               |
 | EnableFormBindingSourceAutomaticValidation   | `false`                  | Enables asynchronous automatic validation for parameters bound from `BindingSource.Form` binding sources (typically parameters decorated with the `[FromForm]` attribute).                                                                                                                                                                                                                                               |
 | EnableQueryBindingSourceAutomaticValidation  | `true`                   | Enables asynchronous automatic validation for parameters bound from `BindingSource.Query` binding sources (typically parameters decorated with the `[FromQuery]` attribute).                                                                                                                                                                                                                                             |
+| EnablePathBindingSourceAutomaticValidation   | `false`                  | Enables asynchronous automatic validation for parameters bound from `BindingSource.Path` binding sources (typically parameters decorated with the `[FromRoute]` attribute).                                                                                                                                                                                                                                              |
 | EnableCustomBindingSourceAutomaticValidation | `false`                  | Enables asynchronous automatic validation for parameters bound from `BindingSource.Custom` binding sources.                                                                                                                                                                                                                                                                                                              |
 
 ```
@@ -80,6 +81,9 @@ builder.Services.AddFluentValidationAutoValidation(configuration =>
 
     // Enable validation for parameters bound from `BindingSource.Query` binding sources.
     configuration.EnableQueryBindingSourceAutomaticValidation = true;
+
+    // Enable validation for parameters bound from `BindingSource.Path` binding sources.
+    configuration.EnablePathBindingSourceAutomaticValidation = true;
 
     // Enable validation for parameters bound from 'BindingSource.Custom' binding sources.
     configuration.EnableCustomBindingSourceAutomaticValidation = true;
