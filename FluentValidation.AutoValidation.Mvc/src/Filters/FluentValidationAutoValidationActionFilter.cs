@@ -41,6 +41,8 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                 if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations &&
                     endpoint != null && !endpoint.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any())
                 {
+                    HandleUnvalidatedEntries(context);
+
                     await next();
 
                     return;
@@ -76,13 +78,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                     }
                 }
 
-                if (autoValidationMvcConfiguration.DisableBuiltInModelValidation)
-                {
-                    foreach (var modelStateEntry in context.ModelState.Values.Where(modelStateEntry => modelStateEntry.ValidationState == ModelValidationState.Unvalidated))
-                    {
-                        modelStateEntry.ValidationState = ModelValidationState.Skipped;
-                    }
-                }
+                HandleUnvalidatedEntries(context);
 
                 if (!context.ModelState.IsValid)
                 {
@@ -95,6 +91,17 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
             }
 
             await next();
+        }
+
+        private void HandleUnvalidatedEntries(ActionExecutingContext context)
+        {
+            if (autoValidationMvcConfiguration.DisableBuiltInModelValidation)
+            {
+                foreach (var modelStateEntry in context.ModelState.Values.Where(modelStateEntry => modelStateEntry.ValidationState == ModelValidationState.Unvalidated))
+                {
+                    modelStateEntry.ValidationState = ModelValidationState.Skipped;
+                }
+            }
         }
     }
 }
