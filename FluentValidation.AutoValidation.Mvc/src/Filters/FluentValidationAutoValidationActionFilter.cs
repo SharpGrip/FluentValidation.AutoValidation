@@ -7,10 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Enums;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Interceptors;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
 
@@ -31,17 +33,17 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
             this.autoValidationMvcConfiguration = autoValidationMvcConfiguration.Value;
         }
 
-        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        public async Task OnActionExecutionAsync(ActionExecutingContext actionExecutingContext, ActionExecutionDelegate next)
         {
-            if (context.Controller is ControllerBase controllerBase)
+            if (actionExecutingContext.Controller is ControllerBase controllerBase)
             {
-                var endpoint = context.HttpContext.GetEndpoint();
-                var controllerActionDescriptor = (ControllerActionDescriptor) context.ActionDescriptor;
+                var endpoint = actionExecutingContext.HttpContext.GetEndpoint();
+                var controllerActionDescriptor = (ControllerActionDescriptor) actionExecutingContext.ActionDescriptor;
 
                 if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations &&
                     endpoint != null && !endpoint.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any())
                 {
-                    HandleUnvalidatedEntries(context);
+                    HandleUnvalidatedEntries(actionExecutingContext);
 
                     await next();
 
@@ -50,7 +52,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                 foreach (var parameter in controllerActionDescriptor.Parameters)
                 {
-                    if (context.ActionArguments.TryGetValue(parameter.Name, out var subject))
+                    if (actionExecutingContext.ActionArguments.TryGetValue(parameter.Name, out var subject))
                     {
                         var parameterType = parameter.ParameterType;
                         var bindingSource = parameter.BindingInfo?.BindingSource;
@@ -64,13 +66,26 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                         {
                             if (serviceProvider.GetValidator(parameterType) is IValidator validator)
                             {
-                                var validationResult = await validator.ValidateAsync(new ValidationContext<object>(subject), context.HttpContext.RequestAborted);
+                                var validationInterceptor = serviceProvider.GetService<IValidationInterceptor>();
+                                IValidationContext validationContext = new ValidationContext<object>(subject);
+
+                                if (validationInterceptor != null)
+                                {
+                                    validationContext = validationInterceptor.BeforeValidation(actionExecutingContext, validationContext) ?? validationContext;
+                                }
+
+                                var validationResult = await validator.ValidateAsync(validationContext, actionExecutingContext.HttpContext.RequestAborted);
+
+                                if (validationInterceptor != null)
+                                {
+                                    validationResult = validationInterceptor.AfterValidation(actionExecutingContext, validationContext) ?? validationResult;
+                                }
 
                                 if (!validationResult.IsValid)
                                 {
                                     foreach (var error in validationResult.Errors)
                                     {
-                                        context.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                                        actionExecutingContext.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                                     }
                                 }
                             }
@@ -78,13 +93,13 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                     }
                 }
 
-                HandleUnvalidatedEntries(context);
+                HandleUnvalidatedEntries(actionExecutingContext);
 
-                if (!context.ModelState.IsValid)
+                if (!actionExecutingContext.ModelState.IsValid)
                 {
-                    var validationProblemDetails = controllerBase.ProblemDetailsFactory.CreateValidationProblemDetails(context.HttpContext, context.ModelState);
+                    var validationProblemDetails = controllerBase.ProblemDetailsFactory.CreateValidationProblemDetails(actionExecutingContext.HttpContext, actionExecutingContext.ModelState);
 
-                    context.Result = fluentValidationAutoValidationResultFactory.CreateActionResult(context, validationProblemDetails);
+                    actionExecutingContext.Result = fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails);
 
                     return;
                 }
