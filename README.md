@@ -121,3 +121,57 @@ public class CustomResultFactory : IFluentValidationAutoValidationResultFactory
     }
 }
 ```
+
+## Validation interceptors
+Note: Using validation interceptors is considered to be an advanced feature and is not needed for most use cases.
+
+Validation interceptors allow you to intercept and alter the validation process by implementing the `IValidationInterceptor` interface in a custom class.
+The interface defines a `BeforeValidation` and a `AfterValidation` method.
+
+The `BeforeValidation` method gets called before validation and allows you to return a custom `IValidationContext` which gets passed to the validator. 
+In case you return `null` the default `IValidationContext` will be passed to the validator.
+
+The `AfterValidation` method gets called after validation and allows you to return a custom `IValidationResult` which gets passed to the `IFluentValidationAutoValidationResultFactory`.
+In case you return `null` the default `IValidationResult` will be passed to the `IFluentValidationAutoValidationResultFactory`.
+
+### MVC controllers
+```
+// Register your custom validation interceptor with the service collection.
+builder.Services.AddTransient<IValidationInterceptor, CustomValidationInterceptor>();
+
+public class CustomValidationInterceptor : IValidationInterceptor
+{
+    public IValidationContext? BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+    {
+        // Return a custom `IValidationContext` or null.
+        return null;
+    }
+
+    public ValidationResult? AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+    {
+        // Return a custom `ValidationResult` or null.
+        return null;
+    }
+}
+```
+
+### Minimal APIs (endpoints)
+```
+// Register your custom validation interceptor with the service collection.
+builder.Services.AddTransient<IValidationInterceptor, CustomValidationInterceptor>();
+
+public class CustomValidationInterceptor : IValidationInterceptor
+{
+    public IValidationContext? BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+    {
+        // Return a custom `IValidationContext` or null.
+        return null;
+    }
+
+    public ValidationResult? AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+    {
+        // Return a custom `ValidationResult` or null.
+        return null;
+    }
+}
+```
