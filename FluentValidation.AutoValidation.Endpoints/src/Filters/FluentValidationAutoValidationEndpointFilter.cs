@@ -26,19 +26,32 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters
 
                 if (argument != null && argument.GetType().IsCustomType() && serviceProvider.GetValidator(argument.GetType()) is IValidator validator)
                 {
-                    var validationInterceptor = serviceProvider.GetService<IValidationInterceptor>();
+                    // ReSharper disable once SuspiciousTypeConversion.Global
+                    var validatorInterceptor = validator as IValidatorInterceptor;
+                    var globalValidationInterceptor = serviceProvider.GetService<IGlobalValidationInterceptor>();
+
                     IValidationContext validationContext = new ValidationContext<object>(argument);
 
-                    if (validationInterceptor != null)
+                    if (validatorInterceptor != null)
                     {
-                        validationContext = validationInterceptor.BeforeValidation(endpointFilterInvocationContext, validationContext) ?? validationContext;
+                        validationContext = validatorInterceptor.BeforeValidation(endpointFilterInvocationContext, validationContext) ?? validationContext;
+                    }
+
+                    if (globalValidationInterceptor != null)
+                    {
+                        validationContext = globalValidationInterceptor.BeforeValidation(endpointFilterInvocationContext, validationContext) ?? validationContext;
                     }
 
                     var validationResult = await validator.ValidateAsync(validationContext, endpointFilterInvocationContext.HttpContext.RequestAborted);
 
-                    if (validationInterceptor != null)
+                    if (validatorInterceptor != null)
                     {
-                        validationResult = validationInterceptor.AfterValidation(endpointFilterInvocationContext, validationContext) ?? validationResult;
+                        validationResult = validatorInterceptor.AfterValidation(endpointFilterInvocationContext, validationContext) ?? validationResult;
+                    }
+
+                    if (globalValidationInterceptor != null)
+                    {
+                        validationResult = globalValidationInterceptor.AfterValidation(endpointFilterInvocationContext, validationContext) ?? validationResult;
                     }
 
                     if (!validationResult.IsValid)

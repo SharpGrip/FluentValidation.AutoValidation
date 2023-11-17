@@ -12,9 +12,12 @@
 
 ## Introduction
 
-SharpGrip FluentValidation AutoValidation is an extension of the [FluentValidation](https://github.com/FluentValidation/FluentValidation) (v10+) library enabling automatic asynchronous validation in MVC controllers and minimal APIs (endpoints).
-The library [FluentValidation.AspNetCore](https://github.com/FluentValidation/FluentValidation.AspNetCore) is no longer being maintained and is unsupported. As a result, support for automatic validation provided by this library is no longer available.
-This library re-introduces this functionality for MVC controllers and introduces automatic validation for minimal APIs (endpoints). It enables developers to easily implement automatic validation in their projects.
+SharpGrip FluentValidation AutoValidation is an extension of the [FluentValidation](https://github.com/FluentValidation/FluentValidation) (v10+) library enabling automatic asynchronous validation in
+MVC controllers and minimal APIs (endpoints).
+The library [FluentValidation.AspNetCore](https://github.com/FluentValidation/FluentValidation.AspNetCore) is no longer being maintained and is unsupported. As a result, support for automatic
+validation provided by this library is no longer available.
+This library re-introduces this functionality for MVC controllers and introduces automatic validation for minimal APIs (endpoints). It enables developers to easily implement automatic validation in
+their projects.
 
 ## Installation
 
@@ -123,24 +126,62 @@ public class CustomResultFactory : IFluentValidationAutoValidationResultFactory
 ```
 
 ## Validation interceptors
+
 Note: Using validation interceptors is considered to be an advanced feature and is not needed for most use cases.
 
-Validation interceptors allow you to intercept and alter the validation process by implementing the `IValidationInterceptor` interface in a custom class.
-The interface defines a `BeforeValidation` and a `AfterValidation` method.
+Validation interceptors allow you to intercept and alter the validation process by either implementing the `IGlobalValidationInterceptor` interface in a custom class or by implementing
+the `IValidatorInterceptor` on a single validator.
+During the validation process both instances get resolved and called (if they are present) creating a mini pipeline of validation interceptors:
 
-The `BeforeValidation` method gets called before validation and allows you to return a custom `IValidationContext` which gets passed to the validator. 
+```
+==> IValidatorInterceptor.BeforeValidation()
+==> IGlobalValidationInterceptor.BeforeValidation()
+
+Validation
+
+==> IValidatorInterceptor.AfterValidation()
+==> IGlobalValidationInterceptor.AfterValidation()
+```
+
+Both interfaces define a `BeforeValidation` and a `AfterValidation` method.
+
+The `BeforeValidation` method gets called before validation and allows you to return a custom `IValidationContext` which gets passed to the validator.
 In case you return `null` the default `IValidationContext` will be passed to the validator.
 
 The `AfterValidation` method gets called after validation and allows you to return a custom `IValidationResult` which gets passed to the `IFluentValidationAutoValidationResultFactory`.
 In case you return `null` the default `IValidationResult` will be passed to the `IFluentValidationAutoValidationResultFactory`.
 
 ### MVC controllers
-```
-// Register your custom validation interceptor with the service collection.
-builder.Services.AddTransient<IValidationInterceptor, CustomValidationInterceptor>();
 
-public class CustomValidationInterceptor : IValidationInterceptor
+```
+// Example of a global validation interceptor.
+builder.Services.AddTransient<IGlobalValidationInterceptor, CustomGlobalValidationInterceptor>();
+
+public class CustomGlobalValidationInterceptor : IGlobalValidationInterceptor
 {
+    public IValidationContext? BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+    {
+        // Return a custom `IValidationContext` or null.
+        return null;
+    }
+
+    public ValidationResult? AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+    {
+        // Return a custom `ValidationResult` or null.
+        return null;
+    }
+}
+
+// Example of a single validator interceptor.
+private class TestValidator : AbstractValidator<TestModel>, IValidatorInterceptor
+{
+    public TestValidator()
+    {
+        RuleFor(x => x.Parameter1).Empty();
+        RuleFor(x => x.Parameter2).Empty();
+        RuleFor(x => x.Parameter3).Empty();
+    }
+
     public IValidationContext? BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
     {
         // Return a custom `IValidationContext` or null.
@@ -156,12 +197,37 @@ public class CustomValidationInterceptor : IValidationInterceptor
 ```
 
 ### Minimal APIs (endpoints)
-```
-// Register your custom validation interceptor with the service collection.
-builder.Services.AddTransient<IValidationInterceptor, CustomValidationInterceptor>();
 
-public class CustomValidationInterceptor : IValidationInterceptor
+```
+// Example of a global validation interceptor.
+builder.Services.AddTransient<IGlobalValidationInterceptor, CustomGlobalValidationInterceptor>();
+
+public class CustomGlobalValidationInterceptor : IValidationInterceptor
 {
+    public IValidationContext? BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+    {
+        // Return a custom `IValidationContext` or null.
+        return null;
+    }
+
+    public ValidationResult? AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+    {
+        // Return a custom `ValidationResult` or null.
+        return null;
+    }
+}
+
+
+// Example of a single validator interceptor.
+private class TestValidator : AbstractValidator<TestModel>, IValidatorInterceptor
+{
+    public TestValidator()
+    {
+        RuleFor(x => x.Parameter1).Empty();
+        RuleFor(x => x.Parameter2).Empty();
+        RuleFor(x => x.Parameter3).Empty();
+    }
+
     public IValidationContext? BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
     {
         // Return a custom `IValidationContext` or null.
