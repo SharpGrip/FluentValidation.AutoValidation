@@ -10,26 +10,19 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters
 {
     public class FluentValidationAutoValidationEndpointFilter : IEndpointFilter
     {
-        private readonly IServiceProvider serviceProvider;
-
-        public FluentValidationAutoValidationEndpointFilter(IServiceProvider serviceProvider)
-        {
-            this.serviceProvider = serviceProvider;
-        }
-
         public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
         {
             for (var i = 0; i < context.Arguments.Count; i++)
             {
                 var argument = context.Arguments[i];
 
-                if (argument != null && argument.GetType().IsCustomType() && serviceProvider.GetValidator(argument.GetType()) is IValidator validator)
+                if (argument != null && argument.GetType().IsCustomType() && context.HttpContext.RequestServices.GetValidator(argument.GetType()) is IValidator validator)
                 {
                     var validationResult = await validator.ValidateAsync(new ValidationContext<object>(argument), context.HttpContext.RequestAborted);
 
                     if (!validationResult.IsValid)
                     {
-                        var fluentValidationAutoValidationResultFactory = serviceProvider.GetService<IFluentValidationAutoValidationResultFactory>();
+                        var fluentValidationAutoValidationResultFactory = context.HttpContext.RequestServices.GetService<IFluentValidationAutoValidationResultFactory>();
 
                         if (fluentValidationAutoValidationResultFactory != null)
                         {
