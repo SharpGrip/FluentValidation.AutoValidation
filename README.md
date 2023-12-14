@@ -128,7 +128,7 @@ public class CustomResultFactory : IFluentValidationAutoValidationResultFactory
 ### MVC controllers
 Customizing automatic validation behavior is achievable through the use of attributes.
 
-The `[AutoValidateAlways]` attribute can be applied to a parameter, compelling automatic validation to disregard the validation check for a valid binding source. 
+The `[AutoValidateAlways]` attribute can be applied to a controller parameter, compelling automatic validation to disregard the validation check for a valid binding source. 
 This proves useful when the `ApiBehaviorOptions.SuppressInferBindingSourcesForParameters` option is enabled, and a custom model is used, with parameters bound from multiple binding sources.
 
 The `[AutoValidateNever]` attribute can be placed on a controller class, controller method, or controller parameter, instructing automatic validation to be skipped.
