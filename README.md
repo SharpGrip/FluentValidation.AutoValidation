@@ -12,12 +12,9 @@
 
 ## Introduction
 
-SharpGrip FluentValidation AutoValidation is an extension of the [FluentValidation](https://github.com/FluentValidation/FluentValidation) (v10+) library enabling automatic asynchronous validation in
-MVC controllers and minimal APIs (endpoints).
-The library [FluentValidation.AspNetCore](https://github.com/FluentValidation/FluentValidation.AspNetCore) is no longer being maintained and is unsupported. As a result, support for automatic
-validation provided by this library is no longer available.
-This library re-introduces this functionality for MVC controllers and introduces automatic validation for minimal APIs (endpoints). It enables developers to easily implement automatic validation in
-their projects.
+SharpGrip FluentValidation AutoValidation is an extension of the [FluentValidation](https://github.com/FluentValidation/FluentValidation) (v10+) library enabling automatic asynchronous validation in MVC controllers and minimal APIs (endpoints).
+The library [FluentValidation.AspNetCore](https://github.com/FluentValidation/FluentValidation.AspNetCore) is no longer being maintained and is unsupported. As a result, support for automatic validation provided by this library is no longer available.
+This library re-introduces this functionality for MVC controllers and introduces automatic validation for minimal APIs (endpoints). It enables developers to easily implement automatic validation in their projects.
 
 ## Installation
 
@@ -120,14 +117,25 @@ public class CustomResultFactory : IFluentValidationAutoValidationResultFactory
     public IResult CreateResult(EndpointFilterInvocationContext context, ValidationResult validationResult)
     {
         var validationProblemErrors = validationResult.ToValidationProblemErrors();
+
         return Results.ValidationProblem(validationProblemErrors, "Some details text.", "Some instance text.", (int) HttpStatusCode.BadRequest, "Some title.");
     }
 }
 ```
 
+## Validation attributes
+
+### MVC controllers
+Customizing automatic validation behavior is achievable through the use of attributes.
+
+The `[AutoValidateAlways]` attribute can be applied to a parameter, compelling automatic validation to disregard the validation check for a valid binding source. 
+This proves useful when the `ApiBehaviorOptions.SuppressInferBindingSourcesForParameters` option is enabled, and a custom model is used, with parameters bound from multiple binding sources.
+
+The `[AutoValidateNever]` attribute can be placed on a controller class, controller method, or controller parameter, instructing automatic validation to be skipped.
+
 ## Validation interceptors
 
-Note: Using validation interceptors is considered to be an advanced feature and is not needed for most use cases.
+**Note:** Using validation interceptors is considered to be an advanced feature and is not needed for most use cases.
 
 Validation interceptors allow you to intercept and alter the validation process by either implementing the `IGlobalValidationInterceptor` interface in a custom class or by implementing
 the `IValidatorInterceptor` on a single validator.
@@ -216,7 +224,6 @@ public class CustomGlobalValidationInterceptor : IValidationInterceptor
         return null;
     }
 }
-
 
 // Example of a single validator interceptor.
 private class TestValidator : AbstractValidator<TestModel>, IValidatorInterceptor

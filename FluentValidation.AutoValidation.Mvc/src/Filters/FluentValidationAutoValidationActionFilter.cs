@@ -40,8 +40,10 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                 var endpoint = actionExecutingContext.HttpContext.GetEndpoint();
                 var controllerActionDescriptor = (ControllerActionDescriptor) actionExecutingContext.ActionDescriptor;
 
-                if (autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations &&
-                    endpoint != null && !endpoint.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any())
+                if (endpoint != null &&
+                    ((autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations &&
+                      !endpoint.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any()) ||
+                     endpoint.Metadata.OfType<AutoValidateNever>().Any()))
                 {
                     HandleUnvalidatedEntries(actionExecutingContext);
 
@@ -54,15 +56,14 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                 {
                     if (actionExecutingContext.ActionArguments.TryGetValue(parameter.Name, out var subject))
                     {
+                        var parameterInfo = ((ControllerParameterDescriptor) parameter).ParameterInfo;
                         var parameterType = parameter.ParameterType;
                         var bindingSource = parameter.BindingInfo?.BindingSource;
 
-                        if (subject != null && parameterType.IsCustomType() &&
-                            ((autoValidationMvcConfiguration.EnableBodyBindingSourceAutomaticValidation && bindingSource == BindingSource.Body) ||
-                             (autoValidationMvcConfiguration.EnableFormBindingSourceAutomaticValidation && bindingSource == BindingSource.Form) ||
-                             (autoValidationMvcConfiguration.EnableQueryBindingSourceAutomaticValidation && bindingSource == BindingSource.Query) ||
-                             (autoValidationMvcConfiguration.EnablePathBindingSourceAutomaticValidation && bindingSource == BindingSource.Path) ||
-                             (autoValidationMvcConfiguration.EnableCustomBindingSourceAutomaticValidation && bindingSource == BindingSource.Custom)))
+                        var hasAutoValidateAlwaysAttribute = parameterInfo.HasCustomAttribute<AutoValidateAlways>();
+                        var hasAutoValidateNeverAttribute = parameterInfo.HasCustomAttribute<AutoValidateNever>();
+
+                        if (subject != null && parameterType.IsCustomType() && !hasAutoValidateNeverAttribute && (hasAutoValidateAlwaysAttribute || HasValidBindingSource(bindingSource)))
                         {
                             if (serviceProvider.GetValidator(parameterType) is IValidator validator)
                             {
@@ -119,6 +120,15 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
             }
 
             await next();
+        }
+
+        private bool HasValidBindingSource(BindingSource? bindingSource)
+        {
+            return (autoValidationMvcConfiguration.EnableBodyBindingSourceAutomaticValidation && bindingSource == BindingSource.Body) ||
+                   (autoValidationMvcConfiguration.EnableFormBindingSourceAutomaticValidation && bindingSource == BindingSource.Form) ||
+                   (autoValidationMvcConfiguration.EnableQueryBindingSourceAutomaticValidation && bindingSource == BindingSource.Query) ||
+                   (autoValidationMvcConfiguration.EnablePathBindingSourceAutomaticValidation && bindingSource == BindingSource.Path) ||
+                   (autoValidationMvcConfiguration.EnableCustomBindingSourceAutomaticValidation && bindingSource == BindingSource.Custom);
         }
 
         private void HandleUnvalidatedEntries(ActionExecutingContext context)

@@ -20,10 +20,8 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters
 
         public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext endpointFilterInvocationContext, EndpointFilterDelegate next)
         {
-            for (var i = 0; i < endpointFilterInvocationContext.Arguments.Count; i++)
+            foreach (var argument in endpointFilterInvocationContext.Arguments)
             {
-                var argument = endpointFilterInvocationContext.Arguments[i];
-
                 if (argument != null && argument.GetType().IsCustomType() && serviceProvider.GetValidator(argument.GetType()) is IValidator validator)
                 {
                     // ReSharper disable once SuspiciousTypeConversion.Global
