@@ -42,7 +42,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                 if (endpoint != null &&
                     ((autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations &&
-                      !endpoint.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any()) ||
+                      !endpoint.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any() && !endpoint.Metadata.OfType<AutoValidationAttribute>().Any()) ||
                      endpoint.Metadata.OfType<AutoValidateNever>().Any()))
                 {
                     HandleUnvalidatedEntries(actionExecutingContext);
