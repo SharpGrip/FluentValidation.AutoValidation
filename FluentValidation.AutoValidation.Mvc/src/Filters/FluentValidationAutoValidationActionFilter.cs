@@ -20,15 +20,13 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 {
     public class FluentValidationAutoValidationActionFilter : IAsyncActionFilter
     {
-        private readonly IServiceProvider serviceProvider;
         private readonly IFluentValidationAutoValidationResultFactory fluentValidationAutoValidationResultFactory;
         private readonly AutoValidationMvcConfiguration autoValidationMvcConfiguration;
 
-        public FluentValidationAutoValidationActionFilter(IServiceProvider serviceProvider,
+        public FluentValidationAutoValidationActionFilter(
             IFluentValidationAutoValidationResultFactory fluentValidationAutoValidationResultFactory,
             IOptions<AutoValidationMvcConfiguration> autoValidationMvcConfiguration)
         {
-            this.serviceProvider = serviceProvider;
             this.fluentValidationAutoValidationResultFactory = fluentValidationAutoValidationResultFactory;
             this.autoValidationMvcConfiguration = autoValidationMvcConfiguration.Value;
         }
@@ -39,8 +37,9 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
             {
                 var endpoint = actionExecutingContext.HttpContext.GetEndpoint();
                 var controllerActionDescriptor = (ControllerActionDescriptor) actionExecutingContext.ActionDescriptor;
+                var serviceProvider = actionExecutingContext.HttpContext.RequestServices;
 
-                if (endpoint != null &&
+				if (endpoint != null &&
                     ((autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations &&
                       !endpoint.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any() && !endpoint.Metadata.OfType<AutoValidationAttribute>().Any()) ||
                      endpoint.Metadata.OfType<AutoValidateNever>().Any()))
