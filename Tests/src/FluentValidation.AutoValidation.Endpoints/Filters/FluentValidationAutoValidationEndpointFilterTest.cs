@@ -26,12 +26,13 @@ public class FluentValidationAutoValidationEndpointFilterTest
         var serviceProvider = Substitute.For<IServiceProvider>();
         var endpointFilterInvocationContext = Substitute.For<EndpointFilterInvocationContext>();
 
-        endpointFilterInvocationContext.Arguments.Returns(new List<object?> {new TestModel {Parameter1 = "Value 1", Parameter2 = "Value 2", Parameter3 = "Value 3"}});
+        endpointFilterInvocationContext.HttpContext.Returns(new DefaultHttpContext { RequestServices = serviceProvider });
+		endpointFilterInvocationContext.Arguments.Returns(new List<object?> {new TestModel {Parameter1 = "Value 1", Parameter2 = "Value 2", Parameter3 = "Value 3"}});
         serviceProvider.GetService(typeof(IValidator<>).MakeGenericType(typeof(TestModel))).Returns(new TestValidator());
 
         var validationFailuresValues = ValidationFailures.Values.ToList();
 
-        var endpointFilter = new FluentValidationAutoValidationEndpointFilter(serviceProvider);
+        var endpointFilter = new FluentValidationAutoValidationEndpointFilter();
 
         var result = (ValidationProblem) (await endpointFilter.InvokeAsync(endpointFilterInvocationContext, _ => ValueTask.FromResult(new object())!))!;
         var problemDetailsErrorValues = result.ProblemDetails.Errors.ToList();
@@ -47,10 +48,11 @@ public class FluentValidationAutoValidationEndpointFilterTest
         var serviceProvider = Substitute.For<IServiceProvider>();
         var endpointFilterInvocationContext = Substitute.For<EndpointFilterInvocationContext>();
 
-        endpointFilterInvocationContext.Arguments.Returns(new List<object?> {new TestModel {Parameter1 = "Value 1", Parameter2 = "Value 2", Parameter3 = "Value 3"}});
+        endpointFilterInvocationContext.HttpContext.Returns(new DefaultHttpContext { RequestServices = serviceProvider });
+		endpointFilterInvocationContext.Arguments.Returns(new List<object?> {new TestModel {Parameter1 = "Value 1", Parameter2 = "Value 2", Parameter3 = "Value 3"}});
         serviceProvider.GetService(typeof(IValidator<>).MakeGenericType(typeof(TestModel))).Returns(null);
 
-        var endpointFilter = new FluentValidationAutoValidationEndpointFilter(serviceProvider);
+        var endpointFilter = new FluentValidationAutoValidationEndpointFilter();
 
         var result = await endpointFilter.InvokeAsync(endpointFilterInvocationContext, _ => ValueTask.FromResult(new object())!);
 
