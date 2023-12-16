@@ -56,12 +56,12 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                 {
                     if (actionExecutingContext.ActionArguments.TryGetValue(parameter.Name, out var subject))
                     {
-                        var parameterInfo = ((ControllerParameterDescriptor) parameter).ParameterInfo;
+                        var parameterInfo = (parameter as ControllerParameterDescriptor)?.ParameterInfo;
                         var parameterType = parameter.ParameterType;
                         var bindingSource = parameter.BindingInfo?.BindingSource;
 
-                        var hasAutoValidateAlwaysAttribute = parameterInfo.HasCustomAttribute<AutoValidateAlways>();
-                        var hasAutoValidateNeverAttribute = parameterInfo.HasCustomAttribute<AutoValidateNever>();
+                        var hasAutoValidateAlwaysAttribute = parameterInfo?.HasCustomAttribute<AutoValidateAlways>() ?? false;
+                        var hasAutoValidateNeverAttribute = parameterInfo?.HasCustomAttribute<AutoValidateNever>() ?? false;
 
                         if (subject != null && parameterType.IsCustomType() && !hasAutoValidateNeverAttribute && (hasAutoValidateAlwaysAttribute || HasValidBindingSource(bindingSource)))
                         {
