@@ -63,15 +63,15 @@ public class FluentValidationAutoValidationActionFilterTest
         var fluentValidationAutoValidationResultFactory = Substitute.For<IFluentValidationAutoValidationResultFactory>();
         var autoValidationMvcConfiguration = Substitute.For<IOptions<AutoValidationMvcConfiguration>>();
         var httpContext = Substitute.For<HttpContext>();
-        httpContext.RequestServices.Returns(serviceProvider);
-		var controller = Substitute.For<TestController>();
+        var controller = Substitute.For<TestController>();
         var actionContext = Substitute.For<ActionContext>(httpContext, Substitute.For<RouteData>(), controllerActionDescriptor, modelStateDictionary);
         var actionExecutingContext = Substitute.For<ActionExecutingContext>(actionContext, new List<IFilterMetadata>(), actionArguments, new object());
         var actionExecutedContext = Substitute.For<ActionExecutedContext>(actionContext, new List<IFilterMetadata>(), new object());
 
         serviceProvider.GetService(typeof(IValidator<>).MakeGenericType(typeof(TestModel))).Returns(new TestValidator());
-        fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails).Returns(new BadRequestObjectResult(validationProblemDetails));
         problemDetailsFactory.CreateValidationProblemDetails(httpContext, modelStateDictionary).Returns(validationProblemDetails);
+        fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails).Returns(new BadRequestObjectResult(validationProblemDetails));
+        httpContext.RequestServices.Returns(serviceProvider);
         controller.ProblemDetailsFactory = problemDetailsFactory;
         actionExecutingContext.Controller.Returns(controller);
         actionExecutingContext.ActionDescriptor = controllerActionDescriptor;

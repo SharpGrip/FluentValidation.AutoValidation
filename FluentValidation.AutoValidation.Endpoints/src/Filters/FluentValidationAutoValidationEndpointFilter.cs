@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,9 +12,9 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters
     {
         public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext endpointFilterInvocationContext, EndpointFilterDelegate next)
         {
-	        var serviceProvider = endpointFilterInvocationContext.HttpContext.RequestServices;
+            var serviceProvider = endpointFilterInvocationContext.HttpContext.RequestServices;
 
-			foreach (var argument in endpointFilterInvocationContext.Arguments)
+            foreach (var argument in endpointFilterInvocationContext.Arguments)
             {
                 if (argument != null && argument.GetType().IsCustomType() && serviceProvider.GetValidator(argument.GetType()) is IValidator validator)
                 {

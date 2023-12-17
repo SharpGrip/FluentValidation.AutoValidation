@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -39,7 +38,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                 var controllerActionDescriptor = (ControllerActionDescriptor) actionExecutingContext.ActionDescriptor;
                 var serviceProvider = actionExecutingContext.HttpContext.RequestServices;
 
-				if (endpoint != null &&
+                if (endpoint != null &&
                     ((autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations &&
                       !endpoint.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any() && !endpoint.Metadata.OfType<AutoValidationAttribute>().Any()) ||
                      endpoint.Metadata.OfType<AutoValidateNever>().Any()))
