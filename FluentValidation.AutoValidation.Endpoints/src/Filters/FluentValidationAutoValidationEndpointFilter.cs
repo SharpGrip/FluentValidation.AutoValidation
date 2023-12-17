@@ -11,16 +11,11 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters
 {
     public class FluentValidationAutoValidationEndpointFilter : IEndpointFilter
     {
-        private readonly IServiceProvider serviceProvider;
-
-        public FluentValidationAutoValidationEndpointFilter(IServiceProvider serviceProvider)
-        {
-            this.serviceProvider = serviceProvider;
-        }
-
         public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext endpointFilterInvocationContext, EndpointFilterDelegate next)
         {
-            foreach (var argument in endpointFilterInvocationContext.Arguments)
+	        var serviceProvider = endpointFilterInvocationContext.HttpContext.RequestServices;
+
+			foreach (var argument in endpointFilterInvocationContext.Arguments)
             {
                 if (argument != null && argument.GetType().IsCustomType() && serviceProvider.GetValidator(argument.GetType()) is IValidator validator)
                 {

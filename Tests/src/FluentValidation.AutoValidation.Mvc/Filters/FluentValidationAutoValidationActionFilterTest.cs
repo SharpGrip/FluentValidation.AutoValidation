@@ -63,7 +63,8 @@ public class FluentValidationAutoValidationActionFilterTest
         var fluentValidationAutoValidationResultFactory = Substitute.For<IFluentValidationAutoValidationResultFactory>();
         var autoValidationMvcConfiguration = Substitute.For<IOptions<AutoValidationMvcConfiguration>>();
         var httpContext = Substitute.For<HttpContext>();
-        var controller = Substitute.For<TestController>();
+        httpContext.RequestServices.Returns(serviceProvider);
+		var controller = Substitute.For<TestController>();
         var actionContext = Substitute.For<ActionContext>(httpContext, Substitute.For<RouteData>(), controllerActionDescriptor, modelStateDictionary);
         var actionExecutingContext = Substitute.For<ActionExecutingContext>(actionContext, new List<IFilterMetadata>(), actionArguments, new object());
         var actionExecutedContext = Substitute.For<ActionExecutedContext>(actionContext, new List<IFilterMetadata>(), new object());
@@ -77,7 +78,7 @@ public class FluentValidationAutoValidationActionFilterTest
         actionExecutingContext.ActionArguments.Returns(actionArguments);
         autoValidationMvcConfiguration.Value.Returns(new AutoValidationMvcConfiguration());
 
-        var actionFilter = new FluentValidationAutoValidationActionFilter(serviceProvider, fluentValidationAutoValidationResultFactory, autoValidationMvcConfiguration);
+        var actionFilter = new FluentValidationAutoValidationActionFilter(fluentValidationAutoValidationResultFactory, autoValidationMvcConfiguration);
 
         await actionFilter.OnActionExecutionAsync(actionExecutingContext, () => Task.FromResult(actionExecutedContext));
 
