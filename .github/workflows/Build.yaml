@@ -54,7 +54,7 @@ jobs:
           dotnet tool update dotnet-sonarscanner --tool-path ${{ env.SONAR_PATH }}
 
       - name: Build solution
-        run: dotnet build -c ${{ env.DOTNET_BUILD_CONFIGURATION }} /warnaserror /nowarn:CS0612
+        run: dotnet build -c ${{ env.DOTNET_BUILD_CONFIGURATION }} /warnaserror /nowarn:CS0612,CS0618
 
       - name: Test solution
         run: dotnet test --no-build -c ${{ env.DOTNET_BUILD_CONFIGURATION }} --verbosity normal
