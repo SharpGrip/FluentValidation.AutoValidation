@@ -210,7 +210,7 @@ private class TestValidator : AbstractValidator<TestModel>, IValidatorIntercepto
 // Example of a global validation interceptor.
 builder.Services.AddTransient<IGlobalValidationInterceptor, CustomGlobalValidationInterceptor>();
 
-public class CustomGlobalValidationInterceptor : IValidationInterceptor
+public class CustomGlobalValidationInterceptor : IGlobalValidationInterceptor
 {
     public IValidationContext? BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
     {
