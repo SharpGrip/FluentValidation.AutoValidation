@@ -20,6 +20,8 @@ public class TypeExtensionsTest
         Assert.False(typeof(ushort).IsCustomType());
         Assert.False(typeof(int).IsCustomType());
         Assert.False(typeof(uint).IsCustomType());
+        Assert.False(typeof(nint).IsCustomType());
+        Assert.False(typeof(nuint).IsCustomType());
         Assert.False(typeof(long).IsCustomType());
         Assert.False(typeof(ulong).IsCustomType());
         Assert.False(typeof(double).IsCustomType());
