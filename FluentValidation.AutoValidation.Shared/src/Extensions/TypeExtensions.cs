@@ -12,7 +12,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Shared.Extensions
                 && !type.IsEnum && !type.IsValueType 
                 && !type.IsPrimitive
                 && type != typeof(string)
-                && type.GetInterfaces()?.Contains(typeof(IEnumerable)) != true;
+                && !type.GetInterfaces().Contains(typeof(IEnumerable));
         }
 
         public static bool HasCustomAttribute<TAttribute>(this Type type) where TAttribute : Attribute
