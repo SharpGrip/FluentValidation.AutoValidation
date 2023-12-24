@@ -41,8 +41,8 @@ public class TypeExtensionsTest
     public void Test_HasCustomAttribute()
     {
         Assert.True(typeof(TestModelClass).HasCustomAttribute<AutoValidationAttribute>());
-        Assert.False(typeof(TestModelClass).HasCustomAttribute<AutoValidateNever>());
-        Assert.True(typeof(TestModelRecord).HasCustomAttribute<AutoValidateNever>());
+        Assert.False(typeof(TestModelClass).HasCustomAttribute<AutoValidateNeverAttribute>());
+        Assert.True(typeof(TestModelRecord).HasCustomAttribute<AutoValidateNeverAttribute>());
         Assert.False(typeof(TestModelRecord).HasCustomAttribute<AutoValidationAttribute>());
     }
 

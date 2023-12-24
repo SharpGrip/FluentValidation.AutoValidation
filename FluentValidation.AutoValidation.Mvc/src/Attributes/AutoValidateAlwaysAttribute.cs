@@ -3,7 +3,7 @@
 namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes
 {
     [AttributeUsage(AttributeTargets.Parameter)]
-    public class AutoValidateAlways : Attribute
+    public class AutoValidateAlwaysAttribute : Attribute
     {
     }
 }

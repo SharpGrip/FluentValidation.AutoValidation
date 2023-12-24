@@ -3,7 +3,7 @@
 namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter)]
-    public class AutoValidateNever : Attribute
+    public class AutoValidateNeverAttribute : Attribute
     {
     }
 }

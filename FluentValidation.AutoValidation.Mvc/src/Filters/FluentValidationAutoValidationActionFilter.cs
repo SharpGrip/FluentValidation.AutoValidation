@@ -41,7 +41,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                 if (endpoint != null &&
                     ((autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations &&
                       !endpoint.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any() && !endpoint.Metadata.OfType<AutoValidationAttribute>().Any()) ||
-                     endpoint.Metadata.OfType<AutoValidateNever>().Any()))
+                     endpoint.Metadata.OfType<AutoValidateNeverAttribute>().Any()))
                 {
                     HandleUnvalidatedEntries(actionExecutingContext);
 
@@ -58,47 +58,46 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                         var parameterType = parameter.ParameterType;
                         var bindingSource = parameter.BindingInfo?.BindingSource;
 
-                        var hasAutoValidateAlwaysAttribute = parameterInfo?.HasCustomAttribute<AutoValidateAlways>() ?? false;
-                        var hasAutoValidateNeverAttribute = parameterInfo?.HasCustomAttribute<AutoValidateNever>() ?? false;
+                        var hasAutoValidateAlwaysAttribute = parameterInfo?.HasCustomAttribute<AutoValidateAlwaysAttribute>() ?? false;
+                        var hasAutoValidateNeverAttribute = parameterInfo?.HasCustomAttribute<AutoValidateNeverAttribute>() ?? false;
 
-                        if (subject != null && parameterType.IsCustomType() && !hasAutoValidateNeverAttribute && (hasAutoValidateAlwaysAttribute || HasValidBindingSource(bindingSource)))
+                        if (subject != null && parameterType.IsCustomType() &&
+                            !hasAutoValidateNeverAttribute && (hasAutoValidateAlwaysAttribute || HasValidBindingSource(bindingSource)) &&
+                            serviceProvider.GetValidator(parameterType) is IValidator validator)
                         {
-                            if (serviceProvider.GetValidator(parameterType) is IValidator validator)
+                            // ReSharper disable once SuspiciousTypeConversion.Global
+                            var validatorInterceptor = validator as IValidatorInterceptor;
+                            var globalValidationInterceptor = serviceProvider.GetService<IGlobalValidationInterceptor>();
+
+                            IValidationContext validationContext = new ValidationContext<object>(subject);
+
+                            if (validatorInterceptor != null)
                             {
-                                // ReSharper disable once SuspiciousTypeConversion.Global
-                                var validatorInterceptor = validator as IValidatorInterceptor;
-                                var globalValidationInterceptor = serviceProvider.GetService<IGlobalValidationInterceptor>();
+                                validationContext = validatorInterceptor.BeforeValidation(actionExecutingContext, validationContext) ?? validationContext;
+                            }
 
-                                IValidationContext validationContext = new ValidationContext<object>(subject);
+                            if (globalValidationInterceptor != null)
+                            {
+                                validationContext = globalValidationInterceptor.BeforeValidation(actionExecutingContext, validationContext) ?? validationContext;
+                            }
 
-                                if (validatorInterceptor != null)
+                            var validationResult = await validator.ValidateAsync(validationContext, actionExecutingContext.HttpContext.RequestAborted);
+
+                            if (validatorInterceptor != null)
+                            {
+                                validationResult = validatorInterceptor.AfterValidation(actionExecutingContext, validationContext) ?? validationResult;
+                            }
+
+                            if (globalValidationInterceptor != null)
+                            {
+                                validationResult = globalValidationInterceptor.AfterValidation(actionExecutingContext, validationContext) ?? validationResult;
+                            }
+
+                            if (!validationResult.IsValid)
+                            {
+                                foreach (var error in validationResult.Errors)
                                 {
-                                    validationContext = validatorInterceptor.BeforeValidation(actionExecutingContext, validationContext) ?? validationContext;
-                                }
-
-                                if (globalValidationInterceptor != null)
-                                {
-                                    validationContext = globalValidationInterceptor.BeforeValidation(actionExecutingContext, validationContext) ?? validationContext;
-                                }
-
-                                var validationResult = await validator.ValidateAsync(validationContext, actionExecutingContext.HttpContext.RequestAborted);
-
-                                if (validatorInterceptor != null)
-                                {
-                                    validationResult = validatorInterceptor.AfterValidation(actionExecutingContext, validationContext) ?? validationResult;
-                                }
-
-                                if (globalValidationInterceptor != null)
-                                {
-                                    validationResult = globalValidationInterceptor.AfterValidation(actionExecutingContext, validationContext) ?? validationResult;
-                                }
-
-                                if (!validationResult.IsValid)
-                                {
-                                    foreach (var error in validationResult.Errors)
-                                    {
-                                        actionExecutingContext.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-                                    }
+                                    actionExecutingContext.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                                 }
                             }
                         }
