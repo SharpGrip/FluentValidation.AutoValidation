@@ -23,11 +23,7 @@ public class ServiceProviderExtensionsTest
         Assert.Equal(testModelValidator, validator);
     }
 
-    private class TestModel
-    {
-    }
+    private class TestModel;
 
-    private class TestModelValidator
-    {
-    }
+    private class TestModelValidator;
 }

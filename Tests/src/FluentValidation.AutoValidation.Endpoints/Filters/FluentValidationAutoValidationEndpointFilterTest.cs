@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using NSubstitute;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters;
+using SharpGrip.FluentValidation.AutoValidation.Endpoints.Interceptors;
 using Xunit;
 
 namespace SharpGrip.FluentValidation.AutoValidation.Tests.FluentValidation.AutoValidation.Endpoints.Filters;
@@ -15,9 +17,9 @@ public class FluentValidationAutoValidationEndpointFilterTest
 {
     private static readonly Dictionary<string, string[]> ValidationFailures = new()
     {
-        {nameof(TestModel.Parameter1), new[] {$"'{nameof(TestModel.Parameter1)}' must be empty."}},
-        {nameof(TestModel.Parameter2), new[] {$"'{nameof(TestModel.Parameter2)}' must be empty."}},
-        {nameof(TestModel.Parameter3), new[] {$"'{nameof(TestModel.Parameter3)}' must be empty."}}
+        {nameof(TestModel.Parameter1), [$"'{nameof(TestModel.Parameter1)}' must be empty."]},
+        {nameof(TestModel.Parameter2), [$"'{nameof(TestModel.Parameter2)}' must be empty."]},
+        {nameof(TestModel.Parameter3), [$"'{nameof(TestModel.Parameter3)}' must be empty."]}
     };
 
     [Fact]
@@ -26,9 +28,10 @@ public class FluentValidationAutoValidationEndpointFilterTest
         var serviceProvider = Substitute.For<IServiceProvider>();
         var endpointFilterInvocationContext = Substitute.For<EndpointFilterInvocationContext>();
 
-        endpointFilterInvocationContext.HttpContext.Returns(new DefaultHttpContext { RequestServices = serviceProvider });
-		endpointFilterInvocationContext.Arguments.Returns(new List<object?> {new TestModel {Parameter1 = "Value 1", Parameter2 = "Value 2", Parameter3 = "Value 3"}});
+        endpointFilterInvocationContext.HttpContext.Returns(new DefaultHttpContext {RequestServices = serviceProvider});
+        endpointFilterInvocationContext.Arguments.Returns(new List<object?> {new TestModel {Parameter1 = "Value 1", Parameter2 = "Value 2", Parameter3 = "Value 3"}});
         serviceProvider.GetService(typeof(IValidator<>).MakeGenericType(typeof(TestModel))).Returns(new TestValidator());
+        serviceProvider.GetService(typeof(IGlobalValidationInterceptor)).Returns(new GlobalValidationInterceptor());
 
         var validationFailuresValues = ValidationFailures.Values.ToList();
 
@@ -48,9 +51,10 @@ public class FluentValidationAutoValidationEndpointFilterTest
         var serviceProvider = Substitute.For<IServiceProvider>();
         var endpointFilterInvocationContext = Substitute.For<EndpointFilterInvocationContext>();
 
-        endpointFilterInvocationContext.HttpContext.Returns(new DefaultHttpContext { RequestServices = serviceProvider });
-		endpointFilterInvocationContext.Arguments.Returns(new List<object?> {new TestModel {Parameter1 = "Value 1", Parameter2 = "Value 2", Parameter3 = "Value 3"}});
+        endpointFilterInvocationContext.HttpContext.Returns(new DefaultHttpContext {RequestServices = serviceProvider});
+        endpointFilterInvocationContext.Arguments.Returns(new List<object?> {new TestModel {Parameter1 = "Value 1", Parameter2 = "Value 2", Parameter3 = "Value 3"}});
         serviceProvider.GetService(typeof(IValidator<>).MakeGenericType(typeof(TestModel))).Returns(null);
+        serviceProvider.GetService(typeof(IGlobalValidationInterceptor)).Returns(null);
 
         var endpointFilter = new FluentValidationAutoValidationEndpointFilter();
 
@@ -66,13 +70,36 @@ public class FluentValidationAutoValidationEndpointFilterTest
         public string? Parameter3 { get; set; }
     }
 
-    private class TestValidator : AbstractValidator<TestModel>
+    private class TestValidator : AbstractValidator<TestModel>, IValidatorInterceptor
     {
         public TestValidator()
         {
             RuleFor(x => x.Parameter1).Empty();
             RuleFor(x => x.Parameter2).Empty();
             RuleFor(x => x.Parameter3).Empty();
+        }
+
+        public IValidationContext? BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+        {
+            return null;
+        }
+
+        public ValidationResult? AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+        {
+            return null;
+        }
+    }
+
+    private class GlobalValidationInterceptor : IGlobalValidationInterceptor
+    {
+        public IValidationContext? BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+        {
+            return null;
+        }
+
+        public ValidationResult? AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+        {
+            return null;
         }
     }
 }

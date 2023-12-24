@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -15,8 +16,10 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Filters;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Interceptors;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
 using Xunit;
+using IValidatorInterceptor = SharpGrip.FluentValidation.AutoValidation.Mvc.Interceptors.IValidatorInterceptor;
 
 namespace SharpGrip.FluentValidation.AutoValidation.Tests.FluentValidation.AutoValidation.Mvc.Filters;
 
@@ -50,9 +53,9 @@ public class FluentValidationAutoValidationActionFilterTest
         };
         var validationFailures = new Dictionary<string, string[]>
         {
-            {nameof(TestModel.Parameter1), new[] {$"'{nameof(TestModel.Parameter1)}' must be empty."}},
-            {nameof(TestModel.Parameter2), new[] {$"'{nameof(TestModel.Parameter2)}' must be empty."}},
-            {nameof(TestModel.Parameter3), new[] {$"'{nameof(TestModel.Parameter3)}' must be empty."}}
+            {nameof(TestModel.Parameter1), [$"'{nameof(TestModel.Parameter1)}' must be empty."]},
+            {nameof(TestModel.Parameter2), [$"'{nameof(TestModel.Parameter2)}' must be empty."]},
+            {nameof(TestModel.Parameter3), [$"'{nameof(TestModel.Parameter3)}' must be empty."]}
         };
 
         var validationProblemDetails = new ValidationProblemDetails(validationFailures);
@@ -69,6 +72,7 @@ public class FluentValidationAutoValidationActionFilterTest
         var actionExecutedContext = Substitute.For<ActionExecutedContext>(actionContext, new List<IFilterMetadata>(), new object());
 
         serviceProvider.GetService(typeof(IValidator<>).MakeGenericType(typeof(TestModel))).Returns(new TestValidator());
+        serviceProvider.GetService(typeof(IGlobalValidationInterceptor)).Returns(new GlobalValidationInterceptor());
         problemDetailsFactory.CreateValidationProblemDetails(httpContext, modelStateDictionary).Returns(validationProblemDetails);
         fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails).Returns(new BadRequestObjectResult(validationProblemDetails));
         httpContext.RequestServices.Returns(serviceProvider);
@@ -107,13 +111,36 @@ public class FluentValidationAutoValidationActionFilterTest
         public string? Parameter3 { get; set; }
     }
 
-    private class TestValidator : AbstractValidator<TestModel>
+    private class TestValidator : AbstractValidator<TestModel>, IValidatorInterceptor
     {
         public TestValidator()
         {
             RuleFor(x => x.Parameter1).Empty();
             RuleFor(x => x.Parameter2).Empty();
             RuleFor(x => x.Parameter3).Empty();
+        }
+
+        public IValidationContext? BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+        {
+            return null;
+        }
+
+        public ValidationResult? AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+        {
+            return null;
+        }
+    }
+
+    private class GlobalValidationInterceptor : IGlobalValidationInterceptor
+    {
+        public IValidationContext? BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+        {
+            return null;
+        }
+
+        public ValidationResult? AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+        {
+            return null;
         }
     }
 }

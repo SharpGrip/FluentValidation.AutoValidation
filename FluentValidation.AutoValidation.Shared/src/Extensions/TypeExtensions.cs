@@ -14,7 +14,8 @@ namespace SharpGrip.FluentValidation.AutoValidation.Shared.Extensions
                 typeof(DateTime),
                 typeof(DateTimeOffset),
                 typeof(TimeSpan),
-                typeof(Guid)
+                typeof(Guid),
+                typeof(Enum)
             };
 
             return type != null && type.IsClass && !type.IsEnum && !type.IsValueType && !type.IsPrimitive && !builtInTypes.Contains(type);
