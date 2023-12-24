@@ -1,40 +1,52 @@
-﻿using System;
-using SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes;
+﻿using SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
+using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace SharpGrip.FluentValidation.AutoValidation.Tests.FluentValidation.AutoValidation.Shared.Extensions;
 
 public class TypeExtensionsTest
 {
-    [Fact]
-    public void Test_IsCustomType()
+    [Theory]
+    [InlineData(typeof(TestModelEnum))]
+    [InlineData(typeof(string))]
+    [InlineData(typeof(char))]
+    [InlineData(typeof(short))]
+    [InlineData(typeof(ushort))]
+    [InlineData(typeof(int))]
+    [InlineData(typeof(uint))]
+    [InlineData(typeof(nint))]
+    [InlineData(typeof(nuint))]
+    [InlineData(typeof(long))]
+    [InlineData(typeof(ulong))]
+    [InlineData(typeof(double))]
+    [InlineData(typeof(float))]
+    [InlineData(typeof(decimal))]
+    [InlineData(typeof(byte))]
+    [InlineData(typeof(sbyte))]
+    [InlineData(typeof(DateTime))]
+    [InlineData(typeof(DateTimeOffset))]
+    [InlineData(typeof(TimeSpan))]
+    [InlineData(typeof(Guid))]
+    [InlineData(typeof(DateOnly))]
+    [InlineData(typeof(TimeOnly))]
+    [InlineData(typeof(int[]))]
+    [InlineData(typeof(List<int>))]
+    [InlineData(typeof(Dictionary<int, int>))]
+    [InlineData(typeof(Array))]
+    [InlineData(null)]
+    public void Test_IsCustomType_Negative(Type? type)
     {
-        Assert.True(typeof(TestModelClass).IsCustomType());
-        Assert.True(typeof(TestModelRecord).IsCustomType());
-        Assert.False(typeof(TestModelEnum).IsCustomType());
-        Assert.False(typeof(Enum).IsCustomType());
-        Assert.False(typeof(string).IsCustomType());
-        Assert.False(typeof(char).IsCustomType());
-        Assert.False(typeof(short).IsCustomType());
-        Assert.False(typeof(ushort).IsCustomType());
-        Assert.False(typeof(int).IsCustomType());
-        Assert.False(typeof(uint).IsCustomType());
-        Assert.False(typeof(nint).IsCustomType());
-        Assert.False(typeof(nuint).IsCustomType());
-        Assert.False(typeof(long).IsCustomType());
-        Assert.False(typeof(ulong).IsCustomType());
-        Assert.False(typeof(double).IsCustomType());
-        Assert.False(typeof(float).IsCustomType());
-        Assert.False(typeof(decimal).IsCustomType());
-        Assert.False(typeof(byte).IsCustomType());
-        Assert.False(typeof(sbyte).IsCustomType());
-        Assert.False(typeof(DateTime).IsCustomType());
-        Assert.False(typeof(DateTimeOffset).IsCustomType());
-        Assert.False(typeof(TimeSpan).IsCustomType());
-        Assert.False(typeof(Guid).IsCustomType());
-        Assert.False(typeof(DateOnly).IsCustomType());
-        Assert.False(typeof(TimeOnly).IsCustomType());
+        Assert.False(type.IsCustomType(), $"Type {type?.Name} was considered as custom type");
+    }
+
+    [Theory]
+    [InlineData(typeof(TestModelClass))]
+    [InlineData(typeof(TestModelRecord))]
+    public void Test_IsCustomType_Positive(Type? type)
+    {
+        Assert.True(type.IsCustomType(), $"Type {type?.Name} was not considered as custom type");
     }
 
     [Fact]
