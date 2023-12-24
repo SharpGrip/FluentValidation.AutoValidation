@@ -138,9 +138,15 @@ The `[AutoValidateNever]` attribute can be placed on a controller class, control
 
 **Note:** Using validation interceptors is considered to be an advanced feature and is not needed for most use cases.
 
-Validation interceptors allow you to intercept and alter the validation process by either implementing the `IGlobalValidationInterceptor` interface in a custom class or by implementing
-the `IValidatorInterceptor` on a single validator.
-During the validation process both instances get resolved and called (if they are present) creating a mini pipeline of validation interceptors:
+Validation interceptors provide a mechanism for intercepting and modifying the validation process. This can be achieved through two distinct approaches:
+
+Global validation interceptor:
+Create a custom class that implements the `IGlobalValidationInterceptor` interface and register it with the service provider.
+
+Per validator interceptor:
+Implement the `IValidatorInterceptor` interface directly on a specific validator.
+
+In the validation process, both the global and the validator interceptors are resolved and invoked (if they exist), thereby establishing a miniature pipeline of validation interceptors:
 
 ```
 ==> IValidatorInterceptor.BeforeValidation()
