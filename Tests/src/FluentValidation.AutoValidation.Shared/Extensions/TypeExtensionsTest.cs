@@ -40,6 +40,8 @@ public class TypeExtensionsTest
     [Theory]
     [InlineData(typeof(TestModelClass))]
     [InlineData(typeof(TestModelRecord))]
+    [InlineData(typeof(TestModelClass[]))]
+    [InlineData(typeof(TestModelRecord[]))]
     public void Test_IsCustomType_Positive(Type? type)
     {
         Assert.True(type.IsCustomType(), $"Type {type?.Name} was not considered as custom type");
