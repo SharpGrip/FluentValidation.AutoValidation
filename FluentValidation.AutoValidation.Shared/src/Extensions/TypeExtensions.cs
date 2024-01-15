@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Linq;
 
 namespace SharpGrip.FluentValidation.AutoValidation.Shared.Extensions
@@ -7,18 +8,12 @@ namespace SharpGrip.FluentValidation.AutoValidation.Shared.Extensions
     {
         public static bool IsCustomType(this Type? type)
         {
-            var builtInTypes = new[]
-            {
-                typeof(string),
-                typeof(decimal),
-                typeof(DateTime),
-                typeof(DateTimeOffset),
-                typeof(TimeSpan),
-                typeof(Guid),
-                typeof(Enum)
-            };
-
-            return type != null && type.IsClass && !type.IsEnum && !type.IsValueType && !type.IsPrimitive && !builtInTypes.Contains(type);
+            return type != null 
+                && type.IsClass
+                && !type.IsEnum 
+                && !type.IsValueType
+                && !type.IsPrimitive
+                && type != typeof(string);
         }
 
         public static bool HasCustomAttribute<TAttribute>(this Type type) where TAttribute : Attribute
