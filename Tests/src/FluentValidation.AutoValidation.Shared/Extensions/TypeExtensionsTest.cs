@@ -31,10 +31,6 @@ public class TypeExtensionsTest
     [InlineData(typeof(Guid))]
     [InlineData(typeof(DateOnly))]
     [InlineData(typeof(TimeOnly))]
-    [InlineData(typeof(int[]))]
-    [InlineData(typeof(List<int>))]
-    [InlineData(typeof(Dictionary<int, int>))]
-    [InlineData(typeof(Array))]
     [InlineData(null)]
     public void Test_IsCustomType_Negative(Type? type)
     {

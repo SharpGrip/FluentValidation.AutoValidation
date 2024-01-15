@@ -8,11 +8,12 @@ namespace SharpGrip.FluentValidation.AutoValidation.Shared.Extensions
     {
         public static bool IsCustomType(this Type? type)
         {
-            return type != null && type.IsClass 
-                && !type.IsEnum && !type.IsValueType 
+            return type != null 
+                && type.IsClass
+                && !type.IsEnum 
+                && !type.IsValueType
                 && !type.IsPrimitive
-                && type != typeof(string)
-                && !type.GetInterfaces().Contains(typeof(IEnumerable));
+                && type != typeof(string);
         }
 
         public static bool HasCustomAttribute<TAttribute>(this Type type) where TAttribute : Attribute
