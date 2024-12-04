@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -22,9 +23,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
         private readonly IFluentValidationAutoValidationResultFactory fluentValidationAutoValidationResultFactory;
         private readonly AutoValidationMvcConfiguration autoValidationMvcConfiguration;
 
-        public FluentValidationAutoValidationActionFilter(
-            IFluentValidationAutoValidationResultFactory fluentValidationAutoValidationResultFactory,
-            IOptions<AutoValidationMvcConfiguration> autoValidationMvcConfiguration)
+        public FluentValidationAutoValidationActionFilter(IFluentValidationAutoValidationResultFactory fluentValidationAutoValidationResultFactory, IOptions<AutoValidationMvcConfiguration> autoValidationMvcConfiguration)
         {
             this.fluentValidationAutoValidationResultFactory = fluentValidationAutoValidationResultFactory;
             this.autoValidationMvcConfiguration = autoValidationMvcConfiguration.Value;
@@ -32,7 +31,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
         public async Task OnActionExecutionAsync(ActionExecutingContext actionExecutingContext, ActionExecutionDelegate next)
         {
-            if (actionExecutingContext.Controller is ControllerBase controllerBase)
+            if (actionExecutingContext.Controller is ControllerBase || actionExecutingContext.Controller.GetType().HasCustomAttribute<ControllerAttribute>())
             {
                 var endpoint = actionExecutingContext.HttpContext.GetEndpoint();
                 var controllerActionDescriptor = (ControllerActionDescriptor) actionExecutingContext.ActionDescriptor;
@@ -108,7 +107,8 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                 if (!actionExecutingContext.ModelState.IsValid)
                 {
-                    var validationProblemDetails = controllerBase.ProblemDetailsFactory.CreateValidationProblemDetails(actionExecutingContext.HttpContext, actionExecutingContext.ModelState);
+                    var problemDetailsFactory = serviceProvider.GetRequiredService<ProblemDetailsFactory>();
+                    var validationProblemDetails = problemDetailsFactory.CreateValidationProblemDetails(actionExecutingContext.HttpContext, actionExecutingContext.ModelState);
 
                     actionExecutingContext.Result = fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails);
 
