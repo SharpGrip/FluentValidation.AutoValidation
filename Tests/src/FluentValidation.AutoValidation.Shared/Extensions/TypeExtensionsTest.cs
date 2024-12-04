@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
 using Xunit;
@@ -46,6 +47,21 @@ public class TypeExtensionsTest
         Assert.False(typeof(TestModelRecord).HasCustomAttribute<AutoValidationAttribute>());
     }
 
+    [Fact]
+    public void Test_InheritsFromTypeWithNameEndingIn()
+    {
+        Assert.True(typeof(TestInherits1).InheritsFromTypeWithNameEndingIn("Controller"));
+        Assert.True(typeof(TestInherits1).InheritsFromTypeWithNameEndingIn("controller"));
+        Assert.True(typeof(TestInherits2).InheritsFromTypeWithNameEndingIn("Controller"));
+        Assert.True(typeof(TestInherits2).InheritsFromTypeWithNameEndingIn("controller"));
+        Assert.False(typeof(TestInherits3).InheritsFromTypeWithNameEndingIn("Controller"));
+        Assert.False(typeof(TestInherits3).InheritsFromTypeWithNameEndingIn("controller"));
+        Assert.False(typeof(TestInherits4).InheritsFromTypeWithNameEndingIn("Controller"));
+        Assert.False(typeof(TestInherits4).InheritsFromTypeWithNameEndingIn("controller"));
+        Assert.False(typeof(TestInherits5).InheritsFromTypeWithNameEndingIn("Controller"));
+        Assert.False(typeof(TestInherits5).InheritsFromTypeWithNameEndingIn("controller"));
+    }
+
     [AutoValidation]
     private class TestModelClass;
 
@@ -53,4 +69,16 @@ public class TypeExtensionsTest
     private record TestModelRecord;
 
     private enum TestModelEnum;
+
+    private class TestInherits1 : Controller;
+
+    private class TestInherits2 : CustomControllerBase;
+
+    private class TestInherits3 : ControllerBase;
+
+    private class TestInherits4 : ActionContext;
+
+    private class TestInherits5 : object;
+
+    private class CustomControllerBase : Controller;
 }
