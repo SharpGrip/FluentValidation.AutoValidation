@@ -18,7 +18,27 @@ This library re-introduces this functionality for MVC controllers and introduces
 
 ## Installation
 
-Register your validators with the Microsoft DI service container, for instructions on setting that up please see https://docs.fluentvalidation.net/en/latest/di.html.
+### Validator registration
+
+To enable this library to automatically resolve and invoke validators for your models, you must register your validators with the Dependency Injection (DI) service container.
+
+#### Manual registration
+
+Manually register your validator with the service container:
+
+```
+services.AddScoped<IValidator<User>, UserValidator>();
+```
+
+#### Automatic registration
+
+Automatically register all validators from the assembly containing your UserValidator:
+
+```
+services.AddValidatorsFromAssemblyContaining<UserValidator>();
+```
+
+For more instructions on setting that up please see https://docs.fluentvalidation.net/en/latest/di.html.
 
 ### MVC controllers [![NuGet](https://img.shields.io/nuget/v/SharpGrip.FluentValidation.AutoValidation.Mvc)](https://www.nuget.org/packages/SharpGrip.FluentValidation.AutoValidation.Mvc)
 
