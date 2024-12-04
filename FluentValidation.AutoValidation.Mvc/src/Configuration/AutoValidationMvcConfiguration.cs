@@ -50,6 +50,11 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration
         public bool EnableCustomBindingSourceAutomaticValidation { get; set; } = false;
 
         /// <summary>
+        /// Enables asynchronous automatic validation for parameters not bound from any binding source (typically parameters without a declared or inferred binding source).
+        /// </summary>
+        public bool EnableNullBindingSourceAutomaticValidation { get; set; } = false;
+
+        /// <summary>
         /// Holds the overridden result factory. This property is meant for infrastructure and should not be used by application code.
         /// </summary>
         public Type? OverriddenResultFactory { get; private set; }
