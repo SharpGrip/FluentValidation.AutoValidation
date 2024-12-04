@@ -73,10 +73,11 @@ public class FluentValidationAutoValidationActionFilterTest
 
         serviceProvider.GetService(typeof(IValidator<>).MakeGenericType(typeof(TestModel))).Returns(new TestValidator());
         serviceProvider.GetService(typeof(IGlobalValidationInterceptor)).Returns(new GlobalValidationInterceptor());
+        serviceProvider.GetService(typeof(ProblemDetailsFactory)).Returns(problemDetailsFactory);
+
         problemDetailsFactory.CreateValidationProblemDetails(httpContext, modelStateDictionary).Returns(validationProblemDetails);
         fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails).Returns(new BadRequestObjectResult(validationProblemDetails));
         httpContext.RequestServices.Returns(serviceProvider);
-        controller.ProblemDetailsFactory = problemDetailsFactory;
         actionExecutingContext.Controller.Returns(controller);
         actionExecutingContext.ActionDescriptor = controllerActionDescriptor;
         actionExecutingContext.ActionArguments.Returns(actionArguments);
