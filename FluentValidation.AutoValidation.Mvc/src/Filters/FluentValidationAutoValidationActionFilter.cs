@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -31,7 +32,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
         public async Task OnActionExecutionAsync(ActionExecutingContext actionExecutingContext, ActionExecutionDelegate next)
         {
-            if (actionExecutingContext.Controller is ControllerBase || actionExecutingContext.Controller.GetType().HasCustomAttribute<ControllerAttribute>())
+            if (IsValidController(actionExecutingContext.Controller))
             {
                 var endpoint = actionExecutingContext.HttpContext.GetEndpoint();
                 var controllerActionDescriptor = (ControllerActionDescriptor) actionExecutingContext.ActionDescriptor;
@@ -117,6 +118,21 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
             }
 
             await next();
+        }
+
+        private bool IsValidController(object controller)
+        {
+            var controllerType = controller.GetType();
+
+            if (controllerType.HasCustomAttribute<NonControllerAttribute>())
+            {
+                return false;
+            }
+
+            return controller is ControllerBase ||
+                   controllerType.HasCustomAttribute<ControllerAttribute>() ||
+                   controllerType.Name.EndsWith("Controller", StringComparison.OrdinalIgnoreCase) ||
+                   controllerType.InheritsFromTypeWithNameEndingIn("Controller");
         }
 
         private bool HasValidBindingSource(BindingSource? bindingSource)

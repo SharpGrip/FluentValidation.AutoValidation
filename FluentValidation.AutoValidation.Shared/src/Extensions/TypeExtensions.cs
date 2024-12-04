@@ -25,5 +25,20 @@ namespace SharpGrip.FluentValidation.AutoValidation.Shared.Extensions
         {
             return type.CustomAttributes.Any(attribute => attribute.AttributeType == typeof(TAttribute));
         }
+
+        public static bool InheritsFromTypeWithNameEndingIn(this Type type, string name)
+        {
+            while (type.BaseType != null)
+            {
+                type = type.BaseType;
+
+                if (type.Name.EndsWith(name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
