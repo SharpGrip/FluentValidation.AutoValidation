@@ -101,6 +101,111 @@ public class FluentValidationAutoValidationActionFilterTest
         Assert.Contains(validationFailuresValues[2].First(), badRequestObjectResultValidationProblemDetails.Errors[nameof(TestModel.Parameter3)][0]);
     }
 
+    [Fact]
+    public async Task OnActionExecutionAsync_WithInstanceTypeDifferentThanParameterType_UsesInstanceTypeValidator()
+    {
+        // Arrange
+        var httpContext = Substitute.For<HttpContext>();
+        var modelStateDictionary = new ModelStateDictionary();
+
+        var validationFailures = new Dictionary<string, string[]>
+        {
+            {nameof(CreatePersonRequest.Name), [$"'{nameof(CreatePersonRequest.Name)}' must be equal to 'John Doe'."]}
+        };
+        var validationProblemDetails = new ValidationProblemDetails(validationFailures);
+
+        var problemDetailsFactory = Substitute.For<ProblemDetailsFactory>();
+        problemDetailsFactory.CreateValidationProblemDetails(httpContext, modelStateDictionary).Returns(validationProblemDetails);
+
+        var serviceProvider = Substitute.For<IServiceProvider>();
+        serviceProvider.GetService(typeof(IValidator<>).MakeGenericType(typeof(CreateAnimalRequest))).Returns(new CreateAnimalRequestValidator());
+        serviceProvider.GetService(typeof(IValidator<>).MakeGenericType(typeof(CreatePersonRequest))).Returns(new CreatePersonRequestValidator());
+        serviceProvider.GetService(typeof(ProblemDetailsFactory)).Returns(problemDetailsFactory);
+
+        httpContext.RequestServices.Returns(serviceProvider);
+
+        var controller = Substitute.For<AnimalsController>();
+        var controllerActionDescriptor = new ControllerActionDescriptor
+        {
+            Parameters =
+            [
+                new()
+                {
+                    Name = "request",
+                    ParameterType = typeof(CreateAnimalRequest),
+                    BindingInfo = new BindingInfo {BindingSource = BindingSource.Body}
+                }
+            ]
+        };
+        var actionContext = Substitute.For<ActionContext>(httpContext, Substitute.For<RouteData>(), controllerActionDescriptor, modelStateDictionary);
+
+        var actionArguments = new Dictionary<string, object?>
+        {
+            {
+                "request", new CreatePersonRequest
+                {
+                    Name = "Jane Doe"
+                }
+            },
+        };
+        var actionExecutingContext = Substitute.For<ActionExecutingContext>(actionContext, new List<IFilterMetadata>(), actionArguments, new object());
+        actionExecutingContext.Controller.Returns(controller);
+        actionExecutingContext.ActionDescriptor = controllerActionDescriptor;
+        actionExecutingContext.ActionArguments.Returns(actionArguments);
+
+        var actionExecutedContext = Substitute.For<ActionExecutedContext>(actionContext, new List<IFilterMetadata>(), new object());
+
+        var fluentValidationAutoValidationResultFactory = Substitute.For<IFluentValidationAutoValidationResultFactory>();
+        fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails).Returns(new BadRequestObjectResult(validationProblemDetails));
+
+        var autoValidationMvcConfiguration = Substitute.For<IOptions<AutoValidationMvcConfiguration>>();
+        autoValidationMvcConfiguration.Value.Returns(new AutoValidationMvcConfiguration());
+
+        var actionFilter = new FluentValidationAutoValidationActionFilter(fluentValidationAutoValidationResultFactory, autoValidationMvcConfiguration);
+
+        // Act
+        await actionFilter.OnActionExecutionAsync(actionExecutingContext, () => Task.FromResult(actionExecutedContext));
+
+        // Assert
+        var modelStateDictionaryValues = modelStateDictionary.Values.ToList();
+        var validationFailuresValues = validationFailures.Values.ToList();
+        var badRequestObjectResult = (BadRequestObjectResult)actionExecutingContext.Result!;
+        var badRequestObjectResultValidationProblemDetails = (ValidationProblemDetails)badRequestObjectResult.Value!;
+
+        Assert.Contains(validationFailuresValues[0].First(), modelStateDictionaryValues[0].Errors.Select(error => error.ErrorMessage));
+        Assert.Contains(validationFailuresValues[0].First(), badRequestObjectResultValidationProblemDetails.Errors[nameof(CreatePersonRequest.Name)][0]);
+    }
+
+    public class AnimalsController : ControllerBase
+    {
+    }
+
+    public class CreateAnimalRequest
+    {
+    }
+
+    public class CreatePersonRequest : CreateAnimalRequest
+    {
+        public required string Name { get; set; }
+    }
+
+    public class CreateAnimalRequestValidator : AbstractValidator<CreateAnimalRequest>
+    {
+        public CreateAnimalRequestValidator()
+        {
+        }
+    }
+
+    public class CreatePersonRequestValidator : AbstractValidator<CreatePersonRequest>
+    {
+        public CreatePersonRequestValidator()
+        {
+            this.Include(new CreateAnimalRequestValidator());
+
+            this.RuleFor(x => x.Name).Equal("John Doe");
+        }
+    }
+
     public class TestController : ControllerBase
     {
     }
