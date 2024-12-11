@@ -61,9 +61,9 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                         var hasAutoValidateAlwaysAttribute = parameterInfo?.HasCustomAttribute<AutoValidateAlwaysAttribute>() ?? false;
                         var hasAutoValidateNeverAttribute = parameterInfo?.HasCustomAttribute<AutoValidateNeverAttribute>() ?? false;
 
-                        if (subject != null && parameterType.IsCustomType() &&
+                        if (subject != null && parameterType != null && parameterType.IsCustomType() &&
                             !hasAutoValidateNeverAttribute && (hasAutoValidateAlwaysAttribute || HasValidBindingSource(bindingSource)) &&
-                            serviceProvider.GetValidator(parameterType!) is IValidator validator)
+                            serviceProvider.GetValidator(parameterType) is IValidator validator)
                         {
                             // ReSharper disable once SuspiciousTypeConversion.Global
                             var validatorInterceptor = validator as IValidatorInterceptor;
