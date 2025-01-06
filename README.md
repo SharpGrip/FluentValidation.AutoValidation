@@ -92,7 +92,7 @@ builder.Services.AddFluentValidationAutoValidation(configuration =>
     configuration.DisableBuiltInModelValidation = true;
 
     // Only validate controllers decorated with the `FluentValidationAutoValidation` attribute.
-    configuration.ValidationStrategy = ValidationStrategy.Annotation;
+    configuration.ValidationStrategy = ValidationStrategy.Annotations;
 
     // Enable validation for parameters bound from `BindingSource.Body` binding sources.
     configuration.EnableBodyBindingSourceAutomaticValidation = true;
