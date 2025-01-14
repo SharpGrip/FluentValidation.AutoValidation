@@ -1,7 +1,7 @@
 name: FluentValidation.AutoValidation [Release]
 
 env:
-  DOTNET_VERSION: 8.0.x
+  DOTNET_VERSION: 9.0.x
   DOTNET_BUILD_CONFIGURATION: Release
   DOTNET_PACKAGES_OUTPUT_DIRECTORY: .nuget
   NUGET_SOURCE: https://api.nuget.org/v3/index.json

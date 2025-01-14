@@ -8,6 +8,7 @@ env:
     6.0.x
     7.0.x
     8.0.x
+    9.0.x
   DOTNET_BUILD_CONFIGURATION: Release
   SONAR_PATH: .\.sonar\scanner
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
