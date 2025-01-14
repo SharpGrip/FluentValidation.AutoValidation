@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <PackageVersion>1.4.0</PackageVersion>
+        <PackageVersion>1.5.0</PackageVersion>
         <Company>SharpGrip</Company>
         <Authors>SharpGrip</Authors>
         <Copyright>SharpGrip</Copyright>
