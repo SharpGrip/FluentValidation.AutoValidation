@@ -113,7 +113,16 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                     actionExecutingContext.Result = fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails);
 
-                    return;
+                    // if the result is null, continue the execution pipeline;
+                    // this allows MVC (UI) controller actions to return a View when the ModelState has errors:
+                    // if (!this.ModelState.IsValid)
+                    // {
+                    //   return this.View(viewModel);
+                    // }
+                    if (actionExecutingContext.Result != null)
+                    {
+                        return;
+                    }
                 }
             }
 

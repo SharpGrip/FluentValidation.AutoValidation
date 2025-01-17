@@ -176,6 +176,80 @@ public class FluentValidationAutoValidationActionFilterTest
         Assert.Contains(validationFailuresValues[0].First(), badRequestObjectResultValidationProblemDetails.Errors[nameof(CreatePersonRequest.Name)][0]);
     }
 
+    [Fact]
+    public async Task OnActionExecutionAsync_WithCustomIFluentValidationAutoValidationResultFactoryWhichReturnsNullActionResult_ContinuesPipelineExecution()
+    {
+        // Arrange
+        var httpContext = Substitute.For<HttpContext>();
+        var modelStateDictionary = new ModelStateDictionary();
+
+        var validationFailures = new Dictionary<string, string[]>
+        {
+            {nameof(TestObject1Controller.CreateTestObject1Request.ValueMustEqual1), [$"'{nameof(TestObject1Controller.CreateTestObject1Request.ValueMustEqual1)}' must be equal to '1'."]}
+        };
+        var validationProblemDetails = new ValidationProblemDetails(validationFailures);
+
+        var problemDetailsFactory = Substitute.For<ProblemDetailsFactory>();
+        problemDetailsFactory.CreateValidationProblemDetails(httpContext, modelStateDictionary).Returns(validationProblemDetails);
+
+        var serviceProvider = Substitute.For<IServiceProvider>();
+        serviceProvider.GetService(typeof(IValidator<>)
+            .MakeGenericType(typeof(TestObject1Controller.CreateTestObject1Request)))
+            .Returns(new TestObject1Controller.CreateTestObject1Request.CreateTestObject1RequestValidator());
+        serviceProvider.GetService(typeof(ProblemDetailsFactory)).Returns(problemDetailsFactory);
+
+        httpContext.RequestServices.Returns(serviceProvider);
+
+        var controller = Substitute.For<TestObject1Controller>();
+        var controllerActionDescriptor = new ControllerActionDescriptor
+        {
+            Parameters =
+            [
+                new()
+                {
+                    Name = "request",
+                    ParameterType = typeof(TestObject1Controller.CreateTestObject1Request),
+                    BindingInfo = new BindingInfo {BindingSource = BindingSource.Body}
+                }
+            ]
+        };
+        var actionContext = Substitute.For<ActionContext>(httpContext, Substitute.For<RouteData>(), controllerActionDescriptor, modelStateDictionary);
+
+        var actionArguments = new Dictionary<string, object?>
+        {
+            {
+                "request", new TestObject1Controller.CreateTestObject1Request
+                {
+                    ValueMustEqual1 = 0
+                }
+            },
+        };
+        var actionExecutingContext = Substitute.For<ActionExecutingContext>(actionContext, new List<IFilterMetadata>(), actionArguments, new object());
+        actionExecutingContext.Controller.Returns(controller);
+        actionExecutingContext.ActionDescriptor = controllerActionDescriptor;
+        actionExecutingContext.ActionArguments.Returns(actionArguments);
+
+        var actionExecutedContext = Substitute.For<ActionExecutedContext>(actionContext, new List<IFilterMetadata>(), new object());
+
+        var fluentValidationAutoValidationResultFactory = Substitute.For<IFluentValidationAutoValidationResultFactory>();
+        fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails).Returns(null as IActionResult);
+
+        var autoValidationMvcConfiguration = Substitute.For<IOptions<AutoValidationMvcConfiguration>>();
+        autoValidationMvcConfiguration.Value.Returns(new AutoValidationMvcConfiguration());
+
+        var actionFilter = new FluentValidationAutoValidationActionFilter(fluentValidationAutoValidationResultFactory, autoValidationMvcConfiguration);
+
+        // Act
+        await actionFilter.OnActionExecutionAsync(actionExecutingContext, () => Task.FromResult(actionExecutedContext));
+
+        // Assert
+        var modelStateDictionaryValues = modelStateDictionary.Values.ToList();
+        var validationFailuresValues = validationFailures.Values.ToList();
+        Assert.Null(actionExecutingContext.Result);
+
+        Assert.Contains(validationFailuresValues[0].First(), modelStateDictionaryValues[0].Errors.Select(error => error.ErrorMessage));
+    }
+
     public class AnimalsController : ControllerBase
     {
     }
@@ -247,6 +321,24 @@ public class FluentValidationAutoValidationActionFilterTest
         public ValidationResult? AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
         {
             return null;
+        }
+    }
+
+    public class TestObject1Controller : ControllerBase
+    {
+        internal class CreateTestObject1Request
+        {
+            public int ValueMustEqual1 { get; set; }
+
+            internal class CreateTestObject1RequestValidator : AbstractValidator<CreateTestObject1Request>
+            {
+                public CreateTestObject1RequestValidator()
+                {
+                    this.RuleFor(x => x.ValueMustEqual1)
+                        .Equal(1)
+                        .WithName(nameof(ValueMustEqual1));
+                }
+            }
         }
     }
 }
