@@ -32,14 +32,12 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions
                 serviceCollection.Configure(autoValidationMvcConfiguration);
             }
 
-            if (configuration.DisableBuiltInModelValidation)
-            {
-                serviceCollection.AddSingleton<IObjectModelValidator, FluentValidationAutoValidationObjectModelValidator>(serviceProvider =>
-                    new FluentValidationAutoValidationObjectModelValidator(
-                        serviceProvider.GetRequiredService<IModelMetadataProvider>(),
-                        serviceProvider.GetRequiredService<IOptions<MvcOptions>>().Value.ModelValidatorProviders,
-                        configuration.DisableBuiltInModelValidation));
-            }
+            serviceCollection.AddSingleton<IObjectModelValidator, FluentValidationAutoValidationObjectModelValidator>(serviceProvider =>
+                new FluentValidationAutoValidationObjectModelValidator(
+                    serviceProvider,
+                    serviceProvider.GetRequiredService<IModelMetadataProvider>(),
+                    serviceProvider.GetRequiredService<IOptions<MvcOptions>>().Value.ModelValidatorProviders,
+                    configuration.DisableBuiltInModelValidation));
 
             // Add the default result factory.
             serviceCollection.AddScoped<IFluentValidationAutoValidationResultFactory, FluentValidationAutoValidationDefaultResultFactory>();
