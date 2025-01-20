@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Routing;
 using NSubstitute;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Validation;
 using Xunit;
@@ -13,15 +15,19 @@ public class FluentValidationAutoValidationValidationVisitorTest
     [Fact]
     public void TestGetValidationVisitor()
     {
-        var serviceProvider = Substitute.For<IServiceProvider>();
         var modelMetadataProvider = Substitute.For<IModelMetadataProvider>();
         var actionContext = Substitute.For<ActionContext>();
+        var httpContext = Substitute.For<HttpContext>();
+        var routeData = Substitute.For<RouteData>();
+        var actionDescriptor = Substitute.For<ActionDescriptor>();
+        actionContext.HttpContext = httpContext;
+        actionContext.RouteData = routeData;
+        actionContext.ActionDescriptor = actionDescriptor;
         var modelValidatorProvider = Substitute.For<IModelValidatorProvider>();
         var validatorCache = Substitute.For<ValidatorCache>();
 
         var fluentValidationAutoValidationObjectModelValidator =
             new FluentValidationAutoValidationValidationVisitor(
-                serviceProvider,
                 actionContext,
                 modelValidatorProvider,
                 validatorCache,

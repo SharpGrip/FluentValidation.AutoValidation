@@ -1,7 +1,8 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
-using FluentValidation;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
@@ -9,11 +10,10 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Validation
 {
     public class FluentValidationAutoValidationValidationVisitor : ValidationVisitor
     {
-        private readonly IServiceProvider serviceProvider;
+        private readonly ActionContext actionContext;
         private readonly bool disableBuiltInModelValidation;
 
         public FluentValidationAutoValidationValidationVisitor(
-            IServiceProvider serviceProvider,
             ActionContext actionContext,
             IModelValidatorProvider validatorProvider,
             ValidatorCache validatorCache,
@@ -22,7 +22,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Validation
             bool disableBuiltInModelValidation)
             : base(actionContext, validatorProvider, validatorCache, metadataProvider, validationState)
         {
-            this.serviceProvider = serviceProvider;
+            this.actionContext = actionContext;
             this.disableBuiltInModelValidation = disableBuiltInModelValidation;
         }
 
@@ -30,7 +30,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Validation
         {
             // If built in model validation is disabled return true for later validation in the action filter.
             bool isBaseValid = disableBuiltInModelValidation || base.Validate(metadata, key, model, alwaysValidateAtTopLevel);
-            return Validate(isBaseValid, key, model);
+            return ValidateAsync(isBaseValid, key, model).Result;
         }
 
 #if !NETCOREAPP3_1
@@ -38,39 +38,45 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Validation
         {
             // If built in model validation is disabled return true for later validation in the action filter.
             bool isBaseValid = disableBuiltInModelValidation || base.Validate(metadata, key, model, alwaysValidateAtTopLevel, container);
-            return Validate(isBaseValid, key, model);
+            return ValidateAsync(isBaseValid, key, model).Result;
         }
 #endif
 
-        private bool Validate(
-            bool isBaseValid,
+        private async Task<bool> ValidateAsync(
+            bool defaultValue,
             string? key,
             object? model)
         {
             if (model == null)
             {
-                return isBaseValid;
+                return defaultValue;
             }
 
-            // Use FluentValidation to perform additional validation
-            var validatorType = typeof(IValidator<>).MakeGenericType(model.GetType());
-            if (!(this.serviceProvider.GetService(validatorType) is IValidator validator))
+            var actionExecutingContext = new ActionExecutingContext(
+                actionContext,
+                new List<IFilterMetadata>(),
+                new Dictionary<string, object>(),
+                null);
+
+            var validationResult = await FluentValidationHelper.ValidateWithFluentValidationAsync(
+                actionContext.HttpContext.RequestServices,
+                model,
+                actionExecutingContext);
+            if (validationResult == null)
             {
-                return isBaseValid;
+                return defaultValue;
             }
 
-            var validationResult = validator.Validate(new ValidationContext<object>(model));
             foreach (var error in validationResult.Errors)
             {
                 var keyName = string.IsNullOrEmpty(key) ? error.PropertyName : $"{key}.{error.PropertyName}";
-
-                if (!ModelState[keyName]?.Errors.Any(e => e.ErrorMessage == error.ErrorMessage) ?? true)
+                if (!this.ModelState[keyName]?.Errors.Any(e => e.ErrorMessage == error.ErrorMessage) ?? true)
                 {
-                    ModelState.AddModelError(keyName, error.ErrorMessage);
+                    this.ModelState.AddModelError(keyName, error.ErrorMessage);
                 }
             }
 
-            return isBaseValid && validationResult.IsValid;
+            return defaultValue && validationResult.IsValid;
         }
     }
 }

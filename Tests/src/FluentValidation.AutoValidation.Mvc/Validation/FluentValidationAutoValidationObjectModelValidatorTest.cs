@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -21,7 +20,6 @@ public class FluentValidationAutoValidationObjectModelValidatorTest
     [Fact]
     public void TestGetValidationVisitor()
     {
-        var serviceProvider = Substitute.For<IServiceProvider>();
         var modelMetadataProvider = Substitute.For<IModelMetadataProvider>();
         var modelMetadataProviders = Substitute.For<IList<IModelValidatorProvider>>();
         var actionContext = Substitute.For<ActionContext>();
@@ -29,7 +27,7 @@ public class FluentValidationAutoValidationObjectModelValidatorTest
         var validatorCache = Substitute.For<ValidatorCache>();
 
         var fluentValidationAutoValidationObjectModelValidator = new FluentValidationAutoValidationObjectModelValidator(
-            serviceProvider, modelMetadataProvider, modelMetadataProviders, true);
+            modelMetadataProvider, modelMetadataProviders, true);
 
         Assert.IsType<FluentValidationAutoValidationValidationVisitor>(
             fluentValidationAutoValidationObjectModelValidator.GetValidationVisitor(actionContext, modelValidatorProvider, validatorCache, modelMetadataProvider, null));
