@@ -30,7 +30,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Validation
         {
             // If built in model validation is disabled return true for later validation in the action filter.
             bool isBaseValid = disableBuiltInModelValidation || base.Validate(metadata, key, model, alwaysValidateAtTopLevel);
-            return ValidateAsync(isBaseValid, key, model).Result;
+            return ValidateAsync(isBaseValid, key, model).GetAwaiter().GetResult();
         }
 
 #if !NETCOREAPP3_1
@@ -38,7 +38,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Validation
         {
             // If built in model validation is disabled return true for later validation in the action filter.
             bool isBaseValid = disableBuiltInModelValidation || base.Validate(metadata, key, model, alwaysValidateAtTopLevel, container);
-            return ValidateAsync(isBaseValid, key, model).Result;
+            return ValidateAsync(isBaseValid, key, model).GetAwaiter().GetResult();
         }
 #endif
 
