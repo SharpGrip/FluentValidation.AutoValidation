@@ -26,7 +26,7 @@ To enable this library to automatically resolve and invoke validators for your m
 
 Manually register your validator with the service container:
 
-```
+```cs
 services.AddScoped<IValidator<User>, UserValidator>();
 ```
 
@@ -34,7 +34,7 @@ services.AddScoped<IValidator<User>, UserValidator>();
 
 Automatically register all validators from the assembly containing your UserValidator:
 
-```
+```cs
 services.AddValidatorsFromAssemblyContaining<UserValidator>();
 ```
 
@@ -44,7 +44,7 @@ For more instructions on setting that up please see https://docs.fluentvalidatio
 
 For MVC controllers reference NuGet package `SharpGrip.FluentValidation.AutoValidation.Mvc` (https://www.nuget.org/packages/SharpGrip.FluentValidation.AutoValidation.Mvc).
 
-```
+```cs
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 builder.Services.AddFluentValidationAutoValidation();
@@ -56,7 +56,7 @@ For minimal APIs (endpoints) reference NuGet package `SharpGrip.FluentValidation
 
 Enabling minimal API (endpoint) automatic validation can be done on both route groups and routes.
 
-```
+```cs
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 
 builder.Services.AddFluentValidationAutoValidation();
@@ -83,7 +83,7 @@ app.MapPost("/", (SomeOtherModel someOtherModel) => $"Hello again {someOtherMode
 | EnableCustomBindingSourceAutomaticValidation | `false`                  | Enables asynchronous automatic validation for parameters bound from `BindingSource.Custom` binding sources.                                                                                                                                                                                                                                                                                              |
 | EnableNullBindingSourceAutomaticValidation   | `false`                  | Enables asynchronous automatic validation for parameters not bound from any binding source (typically parameters without a declared or inferred binding source).                                                                                                                                                                                                                                         |
 
-```
+```cs
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 builder.Services.AddFluentValidationAutoValidation(configuration =>
@@ -124,7 +124,7 @@ public class CustomResultFactory : IFluentValidationAutoValidationResultFactory
 
 ### Minimal APIs (endpoints)
 
-```
+```cs
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 
 builder.Services.AddFluentValidationAutoValidation(configuration =>
@@ -189,7 +189,7 @@ In case you return `null` the default `IValidationResult` will be passed to the 
 
 ### MVC controllers
 
-```
+```cs
 // Example of a global validation interceptor.
 builder.Services.AddTransient<IGlobalValidationInterceptor, CustomGlobalValidationInterceptor>();
 
@@ -234,7 +234,7 @@ private class TestValidator : AbstractValidator<TestModel>, IValidatorIntercepto
 
 ### Minimal APIs (endpoints)
 
-```
+```cs
 // Example of a global validation interceptor.
 builder.Services.AddTransient<IGlobalValidationInterceptor, CustomGlobalValidationInterceptor>();
 
