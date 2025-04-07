@@ -34,10 +34,10 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
         {
             if (IsValidController(actionExecutingContext.Controller))
             {
-                var endpoint = actionExecutingContext.HttpContext.GetEndpoint();
                 var controllerActionDescriptor = (ControllerActionDescriptor) actionExecutingContext.ActionDescriptor;
                 var serviceProvider = actionExecutingContext.HttpContext.RequestServices;
-
+#if NET
+                var endpoint = actionExecutingContext.HttpContext.GetEndpoint();
                 if (endpoint != null &&
                     ((autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations &&
                       !endpoint.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any() && !endpoint.Metadata.OfType<AutoValidationAttribute>().Any()) ||
@@ -49,7 +49,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                     return;
                 }
-
+#endif
                 foreach (var parameter in controllerActionDescriptor.Parameters)
                 {
                     if (actionExecutingContext.ActionArguments.TryGetValue(parameter.Name, out var subject))
@@ -108,9 +108,12 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                 if (!actionExecutingContext.ModelState.IsValid)
                 {
+#if NET
                     var problemDetailsFactory = serviceProvider.GetRequiredService<ProblemDetailsFactory>();
                     var validationProblemDetails = problemDetailsFactory.CreateValidationProblemDetails(actionExecutingContext.HttpContext, actionExecutingContext.ModelState);
-
+#else
+                    var validationProblemDetails = new ValidationProblemDetails(actionExecutingContext.ModelState);
+#endif
                     actionExecutingContext.Result = fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails);
 
                     return;
