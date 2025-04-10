@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
+using FluentValidation.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -69,7 +70,10 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                             var validatorInterceptor = validator as IValidatorInterceptor;
                             var globalValidationInterceptor = serviceProvider.GetService<IGlobalValidationInterceptor>();
 
-                            IValidationContext validationContext = new ValidationContext<object>(subject);
+                            var autoValidateSpecificAttribute = parameterInfo?.GetCustomAttribute<AutoValidateSpecificAttribute>();
+
+                            IValidationContext validationContext = ValidationContext<object>
+                                .CreateWithOptions(subject, str => DefineValidationStrategy(str, autoValidateSpecificAttribute?.RuleSets));
 
                             if (validatorInterceptor != null)
                             {
@@ -154,6 +158,18 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                     modelStateEntry.ValidationState = ModelValidationState.Skipped;
                 }
             }
+        }
+
+        private void DefineValidationStrategy(ValidationStrategy<object> validationStrategy, string[]? ruleSets)
+        {
+            if (ruleSets != null && ruleSets.Length > 0)
+            {
+                validationStrategy = validationStrategy.IncludeRuleSets(ruleSets);
+                return;
+            }
+
+            validationStrategy = validationStrategy
+                .IncludeRulesNotInRuleSet();
         }
     }
 }
