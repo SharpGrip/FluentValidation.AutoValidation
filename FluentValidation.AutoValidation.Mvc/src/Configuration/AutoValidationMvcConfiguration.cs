@@ -45,6 +45,12 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration
         public bool EnablePathBindingSourceAutomaticValidation { get; set; } = false;
 
         /// <summary>
+        /// Enables asynchronous automatic validation for parameters bound from <see cref="BindingSource.Header"/> binding sources (typically parameters decorated with the [FromHeader] attribute).
+        /// </summary>
+        /// <see cref="FromHeaderAttribute"/>
+        public bool EnableHeaderBindingSourceAutomaticValidation { get; set; } = false;
+
+        /// <summary>
         /// Enables asynchronous automatic validation for parameters bound from <see cref="BindingSource.Custom"/> binding sources.
         /// </summary>
         public bool EnableCustomBindingSourceAutomaticValidation { get; set; } = false;

@@ -141,6 +141,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                    (autoValidationMvcConfiguration.EnableFormBindingSourceAutomaticValidation && bindingSource == BindingSource.Form) ||
                    (autoValidationMvcConfiguration.EnableQueryBindingSourceAutomaticValidation && bindingSource == BindingSource.Query) ||
                    (autoValidationMvcConfiguration.EnablePathBindingSourceAutomaticValidation && bindingSource == BindingSource.Path) ||
+                   (autoValidationMvcConfiguration.EnableHeaderBindingSourceAutomaticValidation && bindingSource == BindingSource.Header) ||
                    (autoValidationMvcConfiguration.EnableCustomBindingSourceAutomaticValidation && bindingSource == BindingSource.Custom) ||
                    (autoValidationMvcConfiguration.EnableNullBindingSourceAutomaticValidation && bindingSource == null);
         }
