@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Http.HttpResults;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Results;
 
@@ -9,6 +10,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Configuration
         /// <summary>
         /// Holds the overridden result factory. This property is meant for infrastructure and should not be used by application code.
         /// </summary>
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
         public Type? OverriddenResultFactory { get; private set; }
 
         /// <summary>
@@ -17,7 +19,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Configuration
         /// </summary>
         /// <see cref="FluentValidationAutoValidationDefaultResultFactory"/>
         /// <typeparam name="TResultFactory">The custom result factory implementing <see cref="IFluentValidationAutoValidationResultFactory"/>.</typeparam>
-        public void OverrideDefaultResultFactoryWith<TResultFactory>() where TResultFactory : IFluentValidationAutoValidationResultFactory
+        public void OverrideDefaultResultFactoryWith<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TResultFactory>() where TResultFactory : IFluentValidationAutoValidationResultFactory
         {
             OverriddenResultFactory = typeof(TResultFactory);
         }
