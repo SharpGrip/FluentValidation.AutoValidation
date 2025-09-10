@@ -38,10 +38,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                 var controllerActionDescriptor = (ControllerActionDescriptor) actionExecutingContext.ActionDescriptor;
                 var serviceProvider = actionExecutingContext.HttpContext.RequestServices;
 
-                if (endpoint != null &&
-                    ((autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations &&
-                      !endpoint.Metadata.OfType<FluentValidationAutoValidationAttribute>().Any() && !endpoint.Metadata.OfType<AutoValidationAttribute>().Any()) ||
-                     endpoint.Metadata.OfType<AutoValidateNeverAttribute>().Any()))
+                if (endpoint != null && ((autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && !endpoint.Metadata.OfType<AutoValidationAttribute>().Any()) || endpoint.Metadata.OfType<AutoValidateNeverAttribute>().Any()))
                 {
                     HandleUnvalidatedEntries(actionExecutingContext);
 
