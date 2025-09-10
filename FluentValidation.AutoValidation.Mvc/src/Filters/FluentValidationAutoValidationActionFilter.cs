@@ -13,8 +13,8 @@ using Microsoft.Extensions.Options;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Enums;
-using SharpGrip.FluentValidation.AutoValidation.Mvc.Interceptors;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Results;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Validation;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
 
 namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
@@ -55,45 +55,16 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                     if (actionExecutingContext.ActionArguments.TryGetValue(parameter.Name, out var subject))
                     {
                         var parameterInfo = (parameter as ControllerParameterDescriptor)?.ParameterInfo;
-                        var parameterType = subject?.GetType();
                         var bindingSource = parameter.BindingInfo?.BindingSource;
 
                         var hasAutoValidateAlwaysAttribute = parameterInfo?.HasCustomAttribute<AutoValidateAlwaysAttribute>() ?? false;
                         var hasAutoValidateNeverAttribute = parameterInfo?.HasCustomAttribute<AutoValidateNeverAttribute>() ?? false;
 
-                        if (subject != null && parameterType != null && parameterType.IsCustomType() &&
-                            !hasAutoValidateNeverAttribute && (hasAutoValidateAlwaysAttribute || HasValidBindingSource(bindingSource)) &&
-                            serviceProvider.GetValidator(parameterType) is IValidator validator)
+                        if (!hasAutoValidateNeverAttribute && (hasAutoValidateAlwaysAttribute || HasValidBindingSource(bindingSource)))
                         {
-                            // ReSharper disable once SuspiciousTypeConversion.Global
-                            var validatorInterceptor = validator as IValidatorInterceptor;
-                            var globalValidationInterceptor = serviceProvider.GetService<IGlobalValidationInterceptor>();
-
-                            IValidationContext validationContext = new ValidationContext<object>(subject);
-
-                            if (validatorInterceptor != null)
-                            {
-                                validationContext = validatorInterceptor.BeforeValidation(actionExecutingContext, validationContext) ?? validationContext;
-                            }
-
-                            if (globalValidationInterceptor != null)
-                            {
-                                validationContext = globalValidationInterceptor.BeforeValidation(actionExecutingContext, validationContext) ?? validationContext;
-                            }
-
-                            var validationResult = await validator.ValidateAsync(validationContext, actionExecutingContext.HttpContext.RequestAborted);
-
-                            if (validatorInterceptor != null)
-                            {
-                                validationResult = validatorInterceptor.AfterValidation(actionExecutingContext, validationContext) ?? validationResult;
-                            }
-
-                            if (globalValidationInterceptor != null)
-                            {
-                                validationResult = globalValidationInterceptor.AfterValidation(actionExecutingContext, validationContext) ?? validationResult;
-                            }
-
-                            if (!validationResult.IsValid)
+                            var validationResult = await FluentValidationHelper.ValidateWithFluentValidationAsync(
+                                serviceProvider, subject, actionExecutingContext);
+                            if (validationResult != null && !validationResult.IsValid)
                             {
                                 foreach (var error in validationResult.Errors)
                                 {

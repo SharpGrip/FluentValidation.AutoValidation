@@ -21,7 +21,7 @@ public class ServiceCollectionExtensionsTest
 
         AssertNotContainsServiceDescriptor<IFluentValidationAutoValidationResultFactory, TestResultFactory>(serviceCollection, ServiceLifetime.Scoped);
         AssertContainsServiceDescriptor<IFluentValidationAutoValidationResultFactory, FluentValidationAutoValidationDefaultResultFactory>(serviceCollection, ServiceLifetime.Scoped);
-        AssertNotContainsServiceDescriptor<IObjectModelValidator, FluentValidationAutoValidationObjectModelValidator>(serviceCollection, ServiceLifetime.Singleton);
+        AssertContainsServiceDescriptor<IObjectModelValidator, FluentValidationAutoValidationObjectModelValidator>(serviceCollection, ServiceLifetime.Singleton);
         AssertContainsServiceDescriptor<IConfigureOptions<MvcOptions>, ConfigureNamedOptions<MvcOptions>>(serviceCollection, ServiceLifetime.Singleton);
     }
 
@@ -34,7 +34,7 @@ public class ServiceCollectionExtensionsTest
 
         AssertContainsServiceDescriptor<IFluentValidationAutoValidationResultFactory, TestResultFactory>(serviceCollection, ServiceLifetime.Scoped);
         AssertNotContainsServiceDescriptor<IFluentValidationAutoValidationResultFactory, FluentValidationAutoValidationDefaultResultFactory>(serviceCollection, ServiceLifetime.Scoped);
-        AssertNotContainsServiceDescriptor<IObjectModelValidator, FluentValidationAutoValidationObjectModelValidator>(serviceCollection, ServiceLifetime.Singleton);
+        AssertContainsServiceDescriptor<IObjectModelValidator, FluentValidationAutoValidationObjectModelValidator>(serviceCollection, ServiceLifetime.Singleton);
         AssertContainsServiceDescriptor<IConfigureOptions<MvcOptions>, ConfigureNamedOptions<MvcOptions>>(serviceCollection, ServiceLifetime.Singleton);
     }
 
@@ -47,7 +47,7 @@ public class ServiceCollectionExtensionsTest
 
         AssertNotContainsServiceDescriptor<IFluentValidationAutoValidationResultFactory, TestResultFactory>(serviceCollection, ServiceLifetime.Scoped);
         AssertContainsServiceDescriptor<IFluentValidationAutoValidationResultFactory, FluentValidationAutoValidationDefaultResultFactory>(serviceCollection, ServiceLifetime.Scoped);
-        AssertNotContainsServiceDescriptor<IObjectModelValidator, FluentValidationAutoValidationObjectModelValidator>(serviceCollection, ServiceLifetime.Singleton);
+        AssertContainsServiceDescriptor<IObjectModelValidator, FluentValidationAutoValidationObjectModelValidator>(serviceCollection, ServiceLifetime.Singleton);
         AssertContainsServiceDescriptor<IConfigureOptions<MvcOptions>, ConfigureNamedOptions<MvcOptions>>(serviceCollection, ServiceLifetime.Singleton);
     }
 

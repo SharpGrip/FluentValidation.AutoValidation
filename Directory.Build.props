@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <Nullable>enable</Nullable>
-        <LangVersion>8.0</LangVersion>
+        <LangVersion>9.0</LangVersion>
         <NoWarn>NU1701</NoWarn>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
