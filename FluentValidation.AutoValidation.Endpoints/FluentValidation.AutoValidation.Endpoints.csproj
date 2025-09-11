@@ -5,7 +5,6 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
         <AssemblyName>SharpGrip.FluentValidation.AutoValidation.Endpoints</AssemblyName>
         <PackageId>SharpGrip.FluentValidation.AutoValidation.Endpoints</PackageId>
         <Title>SharpGrip FluentValidation AutoValidation Endpoints</Title>

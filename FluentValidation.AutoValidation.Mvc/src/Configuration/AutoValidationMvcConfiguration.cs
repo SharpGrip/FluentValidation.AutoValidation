@@ -16,7 +16,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration
 
         /// <summary>
         /// Configures the validation strategy. Validation strategy <see cref="Enums.ValidationStrategy.All"/> enables asynchronous automatic validation on all controllers inheriting from <see cref="ControllerBase"/>.
-        /// Validation strategy <see cref="Enums.ValidationStrategy.Annotations"/> enables asynchronous automatic validation on controllers inheriting from <see cref="ControllerBase"/> decorated (class or method) with a <see cref="FluentValidationAutoValidationAttribute"/> attribute.
+        /// Validation strategy <see cref="Enums.ValidationStrategy.Annotations"/> enables asynchronous automatic validation on controllers decorated (class or method) with a <see cref="AutoValidationAttribute"/> attribute.
         /// </summary>
         public ValidationStrategy ValidationStrategy { get; set; } = ValidationStrategy.All;
 
@@ -70,7 +70,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration
         /// The default result factory returns the default <see cref="ValidationProblemDetails"/> object wrapped in a <see cref="BadRequestObjectResult"/>>. 
         /// </summary>
         /// <see cref="FluentValidationAutoValidationDefaultResultFactory"/>
-        /// <typeparam name="TResultFactory">The custom result factory implement <see cref="IFluentValidationAutoValidationResultFactory"/>.</typeparam>
+        /// <typeparam name="TResultFactory">The custom result factory implementing <see cref="IFluentValidationAutoValidationResultFactory"/>.</typeparam>
         public void OverrideDefaultResultFactoryWith<TResultFactory>() where TResultFactory : IFluentValidationAutoValidationResultFactory
         {
             OverriddenResultFactory = typeof(TResultFactory);

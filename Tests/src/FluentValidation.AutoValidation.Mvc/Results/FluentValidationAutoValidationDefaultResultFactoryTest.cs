@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿// ReSharper disable InconsistentNaming
+
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -14,9 +16,9 @@ public class FluentValidationAutoValidationDefaultResultFactoryTest
 {
     private static readonly Dictionary<string, string[]> ValidationFailures = new()
     {
-        {"Property 1", new[] {"Error message 1"}},
-        {"Property 2", new[] {"Error message 2"}},
-        {"Property 3", new[] {"Error message 3"}},
+        {"Property 1", ["Error message 1"]},
+        {"Property 2", ["Error message 2"]},
+        {"Property 3", ["Error message 3"]},
     };
 
     [Fact]

@@ -1,4 +1,6 @@
-﻿using System;
+﻿// ReSharper disable InconsistentNaming
+
+using System;
 using FluentValidation;
 using NSubstitute;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
