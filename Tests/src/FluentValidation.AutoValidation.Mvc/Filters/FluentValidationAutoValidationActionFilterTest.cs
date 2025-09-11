@@ -37,7 +37,7 @@ public class FluentValidationAutoValidationActionFilterTest
                     Parameter2 = "Value 2",
                     Parameter3 = "Value 3"
                 }
-            },
+            }
         };
         var controllerActionDescriptor = new ControllerActionDescriptor
         {
@@ -129,7 +129,7 @@ public class FluentValidationAutoValidationActionFilterTest
         {
             Parameters =
             [
-                new()
+                new ParameterDescriptor
                 {
                     Name = "request",
                     ParameterType = typeof(CreateAnimalRequest),
@@ -169,46 +169,35 @@ public class FluentValidationAutoValidationActionFilterTest
         // Assert
         var modelStateDictionaryValues = modelStateDictionary.Values.ToList();
         var validationFailuresValues = validationFailures.Values.ToList();
-        var badRequestObjectResult = (BadRequestObjectResult)actionExecutingContext.Result!;
-        var badRequestObjectResultValidationProblemDetails = (ValidationProblemDetails)badRequestObjectResult.Value!;
+        var badRequestObjectResult = (BadRequestObjectResult) actionExecutingContext.Result!;
+        var badRequestObjectResultValidationProblemDetails = (ValidationProblemDetails) badRequestObjectResult.Value!;
 
         Assert.Contains(validationFailuresValues[0].First(), modelStateDictionaryValues[0].Errors.Select(error => error.ErrorMessage));
         Assert.Contains(validationFailuresValues[0].First(), badRequestObjectResultValidationProblemDetails.Errors[nameof(CreatePersonRequest.Name)][0]);
     }
 
-    public class AnimalsController : ControllerBase
-    {
-    }
+    public class AnimalsController : ControllerBase;
 
-    public class CreateAnimalRequest
-    {
-    }
+    public class CreateAnimalRequest;
 
     public class CreatePersonRequest : CreateAnimalRequest
     {
         public required string Name { get; set; }
     }
 
-    public class CreateAnimalRequestValidator : AbstractValidator<CreateAnimalRequest>
-    {
-        public CreateAnimalRequestValidator()
-        {
-        }
-    }
+    public class CreateAnimalRequestValidator : AbstractValidator<CreateAnimalRequest>;
 
     public class CreatePersonRequestValidator : AbstractValidator<CreatePersonRequest>
     {
         public CreatePersonRequestValidator()
         {
-            this.Include(new CreateAnimalRequestValidator());
+            Include(new CreateAnimalRequestValidator());
 
-            this.RuleFor(x => x.Name).Equal("John Doe");
+            RuleFor(x => x.Name).Equal("John Doe");
         }
     }
 
-    public class TestController : ControllerBase
-    {
-    }
+    public class TestController : ControllerBase;
 
     private class TestModel
     {
