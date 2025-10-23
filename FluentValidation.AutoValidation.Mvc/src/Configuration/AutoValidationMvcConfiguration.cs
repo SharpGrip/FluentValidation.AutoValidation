@@ -10,6 +10,11 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration
     public class AutoValidationMvcConfiguration
     {
         /// <summary>
+        /// Disables response overrides (i.e. only updates the value of ModelState.IsValid parameter).
+        /// </summary>
+        public bool DontOverrideResult { get; set; }
+
+        /// <summary>
         /// Disables the built-in .NET model (data annotations) validation.
         /// </summary>
         public bool DisableBuiltInModelValidation { get; set; }

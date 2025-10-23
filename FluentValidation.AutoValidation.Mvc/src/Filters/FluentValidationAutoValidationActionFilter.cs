@@ -106,7 +106,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                 HandleUnvalidatedEntries(actionExecutingContext);
 
-                if (!actionExecutingContext.ModelState.IsValid)
+                if (!actionExecutingContext.ModelState.IsValid && !autoValidationMvcConfiguration.DontOverrideResult)
                 {
                     var problemDetailsFactory = serviceProvider.GetRequiredService<ProblemDetailsFactory>();
                     var validationProblemDetails = problemDetailsFactory.CreateValidationProblemDetails(actionExecutingContext.HttpContext, actionExecutingContext.ModelState);
