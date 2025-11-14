@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace SharpGrip.FluentValidation.AutoValidation.Tests.FluentValidation.AutoValidation.Shared.Extensions;
 
@@ -15,6 +16,7 @@ public class TypeExtensionsTest
     {
         Assert.True(typeof(TestModelClass).IsCustomType());
         Assert.True(typeof(TestModelRecord).IsCustomType());
+        Assert.True(typeof(TestModelStruct).IsCustomType());
         Assert.False(typeof(TestModelEnum).IsCustomType());
         Assert.False(typeof(Enum).IsCustomType());
         Assert.False(typeof(string).IsCustomType());
@@ -38,6 +40,7 @@ public class TypeExtensionsTest
         Assert.False(typeof(Guid).IsCustomType());
         Assert.False(typeof(DateOnly).IsCustomType());
         Assert.False(typeof(TimeOnly).IsCustomType());
+        Assert.False(typeof(Uri).IsCustomType());
     }
 
     [Fact]
@@ -69,6 +72,8 @@ public class TypeExtensionsTest
 
     [AutoValidateNever]
     private record TestModelRecord;
+
+    private struct TestModelStruct;
 
     private enum TestModelEnum;
 
