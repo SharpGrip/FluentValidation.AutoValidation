@@ -54,7 +54,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters
 
                     if (!validationResult.IsValid)
                     {
-                        logger.LogDebug("Validation result not valid for argument '{Argument}': {ErrorCount} validation errors found.", argument.GetType().Name, validationResult.Errors.Count);
+                        logger.LogDebug("Validation result not valid for argument '{Argument}': {ErrorCount} validation error(s) found.", argument.GetType().Name, validationResult.Errors.Count);
 
                         var fluentValidationAutoValidationResultFactory = serviceProvider.GetService<IFluentValidationAutoValidationResultFactory>();
 

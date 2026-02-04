@@ -100,7 +100,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                             if (!validationResult.IsValid)
                             {
-                                logger.LogDebug("Validation result not valid for parameter '{Parameter}' of type '{Type}' for action '{Action}' on controller '{Controller}': {ErrorCount} validation errors found.", parameter.Name, parameterType.Name, controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName, validationResult.Errors.Count);
+                                logger.LogDebug("Validation result not valid for parameter '{Parameter}' of type '{Type}' for action '{Action}' on controller '{Controller}': {ErrorCount} validation error(s) found.", parameter.Name, parameterType.Name, controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName, validationResult.Errors.Count);
 
                                 foreach (var error in validationResult.Errors)
                                 {
@@ -133,13 +133,11 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                     if (actionExecutingContext.Result != null)
                     {
                         logger.LogTrace("Action result created for action '{Action}' on controller '{Controller}'.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
-                    }
-                    else
-                    {
-                        logger.LogTrace("No action result created for action '{Action}' on controller '{Controller}'.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
+
+                        return;
                     }
 
-                    return;
+                    logger.LogTrace("No action result created for action '{Action}' on controller '{Controller}'.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
                 }
 
                 logger.LogDebug("ModelState is valid for action '{Action}' on controller '{Controller}'. Proceeding with action execution.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
