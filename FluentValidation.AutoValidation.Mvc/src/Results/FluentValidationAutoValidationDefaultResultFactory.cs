@@ -1,13 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using FluentValidation;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Results
 {
     public class FluentValidationAutoValidationDefaultResultFactory : IFluentValidationAutoValidationResultFactory
     {
-        public IActionResult CreateActionResult(ActionExecutingContext context, ValidationProblemDetails? validationProblemDetails)
+        public Task<IActionResult?> CreateActionResult(ActionExecutingContext context, ValidationProblemDetails validationProblemDetails, IDictionary<IValidationContext, ValidationResult> validationResults)
         {
-            return new BadRequestObjectResult(validationProblemDetails);
+            return Task.FromResult<IActionResult?>(new BadRequestObjectResult(validationProblemDetails));
         }
     }
 }

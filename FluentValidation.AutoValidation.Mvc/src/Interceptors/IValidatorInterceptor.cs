@@ -5,7 +5,5 @@
     ///
     /// The interceptor methods of instances of this interface will only get called when the implementing validator gets validated.
     /// </summary>
-    public interface IValidatorInterceptor : IGlobalValidationInterceptor
-    {
-    }
+    public interface IValidatorInterceptor : IGlobalValidationInterceptor;
 }

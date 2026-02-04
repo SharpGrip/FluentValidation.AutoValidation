@@ -51,7 +51,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions
             }
 
             // Create a default instance of the `ModelStateInvalidFilter` to access the non static property `Order` in a static context.
-            var modelStateInvalidFilter = new ModelStateInvalidFilter(new ApiBehaviorOptions {InvalidModelStateResponseFactory = context => new OkResult()}, NullLogger.Instance);
+            var modelStateInvalidFilter = new ModelStateInvalidFilter(new ApiBehaviorOptions {InvalidModelStateResponseFactory = _ => new OkResult()}, NullLogger.Instance);
 
             // Make sure we insert the `FluentValidationAutoValidationActionFilter` before the built-in `ModelStateInvalidFilter` to prevent it short-circuiting the request.
             serviceCollection.Configure<MvcOptions>(options => options.Filters.Add<FluentValidationAutoValidationActionFilter>(modelStateInvalidFilter.Order - 1));
