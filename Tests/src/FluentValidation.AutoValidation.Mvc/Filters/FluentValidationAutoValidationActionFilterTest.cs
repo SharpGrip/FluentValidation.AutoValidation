@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration;
@@ -66,6 +67,7 @@ public class FluentValidationAutoValidationActionFilterTest
         var problemDetailsFactory = Substitute.For<ProblemDetailsFactory>();
         var fluentValidationAutoValidationResultFactory = Substitute.For<IFluentValidationAutoValidationResultFactory>();
         var autoValidationMvcConfiguration = Substitute.For<IOptions<AutoValidationMvcConfiguration>>();
+        var logger = Substitute.For<ILogger<FluentValidationAutoValidationActionFilter>>();
         var httpContext = Substitute.For<HttpContext>();
         var controller = Substitute.For<TestController>();
         var actionContext = Substitute.For<ActionContext>(httpContext, Substitute.For<RouteData>(), controllerActionDescriptor, modelStateDictionary);
@@ -84,7 +86,7 @@ public class FluentValidationAutoValidationActionFilterTest
         actionExecutingContext.ActionArguments.Returns(actionArguments);
         autoValidationMvcConfiguration.Value.Returns(new AutoValidationMvcConfiguration());
 
-        var actionFilter = new FluentValidationAutoValidationActionFilter(fluentValidationAutoValidationResultFactory, autoValidationMvcConfiguration);
+        var actionFilter = new FluentValidationAutoValidationActionFilter(fluentValidationAutoValidationResultFactory, autoValidationMvcConfiguration, logger);
 
         await actionFilter.OnActionExecutionAsync(actionExecutingContext, () => Task.FromResult(actionExecutedContext));
 
@@ -162,7 +164,9 @@ public class FluentValidationAutoValidationActionFilterTest
         var autoValidationMvcConfiguration = Substitute.For<IOptions<AutoValidationMvcConfiguration>>();
         autoValidationMvcConfiguration.Value.Returns(new AutoValidationMvcConfiguration());
 
-        var actionFilter = new FluentValidationAutoValidationActionFilter(fluentValidationAutoValidationResultFactory, autoValidationMvcConfiguration);
+        var logger = Substitute.For<ILogger<FluentValidationAutoValidationActionFilter>>();
+
+        var actionFilter = new FluentValidationAutoValidationActionFilter(fluentValidationAutoValidationResultFactory, autoValidationMvcConfiguration, logger);
 
         // Act
         await actionFilter.OnActionExecutionAsync(actionExecutingContext, () => Task.FromResult(actionExecutedContext));

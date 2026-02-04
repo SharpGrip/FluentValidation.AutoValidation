@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration;
@@ -21,27 +22,25 @@ using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
 
 namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 {
-    public class FluentValidationAutoValidationActionFilter : IAsyncActionFilter
+    public class FluentValidationAutoValidationActionFilter(IFluentValidationAutoValidationResultFactory fluentValidationAutoValidationResultFactory, IOptions<AutoValidationMvcConfiguration> autoValidationMvcConfiguration, ILogger<FluentValidationAutoValidationActionFilter> logger) : IAsyncActionFilter
     {
-        private readonly IFluentValidationAutoValidationResultFactory fluentValidationAutoValidationResultFactory;
-        private readonly AutoValidationMvcConfiguration autoValidationMvcConfiguration;
-
-        public FluentValidationAutoValidationActionFilter(IFluentValidationAutoValidationResultFactory fluentValidationAutoValidationResultFactory, IOptions<AutoValidationMvcConfiguration> autoValidationMvcConfiguration)
-        {
-            this.fluentValidationAutoValidationResultFactory = fluentValidationAutoValidationResultFactory;
-            this.autoValidationMvcConfiguration = autoValidationMvcConfiguration.Value;
-        }
+        private readonly AutoValidationMvcConfiguration autoValidationMvcConfiguration = autoValidationMvcConfiguration.Value;
 
         public async Task OnActionExecutionAsync(ActionExecutingContext actionExecutingContext, ActionExecutionDelegate next)
         {
+            var controllerActionDescriptor = (ControllerActionDescriptor) actionExecutingContext.ActionDescriptor;
+
+            logger.LogDebug("Starting validation for action '{Action}' on controller '{Controller}'.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
+
             if (IsValidController(actionExecutingContext.Controller))
             {
                 var endpoint = actionExecutingContext.HttpContext.GetEndpoint();
-                var controllerActionDescriptor = (ControllerActionDescriptor) actionExecutingContext.ActionDescriptor;
                 var serviceProvider = actionExecutingContext.HttpContext.RequestServices;
 
                 if (endpoint != null && ((autoValidationMvcConfiguration.ValidationStrategy == ValidationStrategy.Annotations && !endpoint.Metadata.OfType<AutoValidationAttribute>().Any()) || endpoint.Metadata.OfType<AutoValidateNeverAttribute>().Any()))
                 {
+                    logger.LogDebug("Skipping validation for action '{Action}' on controller '{Controller}' due to validation strategy or AutoValidateNeverAttribute.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
+
                     HandleUnvalidatedEntries(actionExecutingContext);
 
                     await next();
@@ -64,6 +63,8 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                         if (subject != null && parameterType != null && parameterType.IsCustomType() && !hasAutoValidateNeverAttribute && (hasAutoValidateAlwaysAttribute || HasValidBindingSource(bindingSource)) && serviceProvider.GetValidator(parameterType) is IValidator validator)
                         {
+                            logger.LogDebug("Validating parameter '{Parameter}' of type '{Type}' for action '{Action}' on controller '{Controller}'.", parameter.Name, parameterType.Name, controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
+
                             // ReSharper disable once SuspiciousTypeConversion.Global
                             var validatorInterceptor = validator as IValidatorInterceptor;
                             var globalValidationInterceptor = serviceProvider.GetService<IGlobalValidationInterceptor>();
@@ -72,11 +73,13 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                             if (validatorInterceptor != null)
                             {
+                                logger.LogDebug("Invoking validator interceptor BeforeValidation for parameter '{Parameter}'.", parameter.Name);
                                 validationContext = await validatorInterceptor.BeforeValidation(actionExecutingContext, validationContext) ?? validationContext;
                             }
 
                             if (globalValidationInterceptor != null)
                             {
+                                logger.LogDebug("Invoking global validation interceptor BeforeValidation for parameter '{Parameter}'.", parameter.Name);
                                 validationContext = await globalValidationInterceptor.BeforeValidation(actionExecutingContext, validationContext) ?? validationContext;
                             }
 
@@ -85,20 +88,30 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                             if (validatorInterceptor != null)
                             {
+                                logger.LogDebug("Invoking validator interceptor AfterValidation for parameter '{Parameter}'.", parameter.Name);
                                 validationResult = await validatorInterceptor.AfterValidation(actionExecutingContext, validationContext, validationResult) ?? validationResult;
                             }
 
                             if (globalValidationInterceptor != null)
                             {
+                                logger.LogDebug("Invoking global validation interceptor AfterValidation for parameter '{Parameter}'.", parameter.Name);
                                 validationResult = await globalValidationInterceptor.AfterValidation(actionExecutingContext, validationContext, validationResult) ?? validationResult;
                             }
 
                             if (!validationResult.IsValid)
                             {
+                                logger.LogDebug("Validation result not valid for parameter '{Parameter}' of type '{Type}' for action '{Action}' on controller '{Controller}': {ErrorCount} validation errors found.", parameter.Name, parameterType.Name, controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName, validationResult.Errors.Count);
+
                                 foreach (var error in validationResult.Errors)
                                 {
+                                    logger.LogTrace("Adding validation error '{ErrorMessage}' for '{ParameterName}' to ModelState.", error.ErrorMessage, parameter.Name);
+
                                     actionExecutingContext.ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                                 }
+                            }
+                            else
+                            {
+                                logger.LogDebug("Validation result valid for parameter '{Parameter}' of type '{Type}' for action '{Action}' on controller '{Controller}'.", parameter.Name, parameterType.Name, controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
                             }
                         }
                     }
@@ -108,13 +121,28 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                 if (!actionExecutingContext.ModelState.IsValid)
                 {
+                    logger.LogDebug("ModelState is not valid for action '{Action}' on controller '{Controller}'. Creating validation problem details.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
+
                     var problemDetailsFactory = serviceProvider.GetRequiredService<ProblemDetailsFactory>();
                     var validationProblemDetails = problemDetailsFactory.CreateValidationProblemDetails(actionExecutingContext.HttpContext, actionExecutingContext.ModelState);
 
+                    logger.LogTrace("Creating action result for action '{Action}' on controller '{Controller}'.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
+
                     actionExecutingContext.Result = await fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails, validationResults);
+
+                    if (actionExecutingContext.Result != null)
+                    {
+                        logger.LogTrace("Action result created for action '{Action}' on controller '{Controller}'.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
+                    }
+                    else
+                    {
+                        logger.LogTrace("No action result created for action '{Action}' on controller '{Controller}'.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
+                    }
 
                     return;
                 }
+
+                logger.LogDebug("ModelState is valid for action '{Action}' on controller '{Controller}'. Proceeding with action execution.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
             }
 
             await next();
@@ -126,6 +154,8 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
             if (controllerType.HasCustomAttribute<NonControllerAttribute>())
             {
+                logger.LogDebug("Controller '{Controller}' is marked with NonControllerAttribute. Skipping validation.", controllerType.Name);
+
                 return false;
             }
 
@@ -147,10 +177,16 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
         {
             if (autoValidationMvcConfiguration.DisableBuiltInModelValidation)
             {
+                logger.LogDebug("Skipping validation of unvalidated entries due to DisableBuiltInModelValidation being set to true.");
+
                 foreach (var modelStateEntry in context.ModelState.Values.Where(modelStateEntry => modelStateEntry.ValidationState == ModelValidationState.Unvalidated))
                 {
                     modelStateEntry.ValidationState = ModelValidationState.Skipped;
                 }
+            }
+            else
+            {
+                logger.LogDebug("Skipping validation of unvalidated entries due to DisableBuiltInModelValidation being set to false.");
             }
         }
     }
