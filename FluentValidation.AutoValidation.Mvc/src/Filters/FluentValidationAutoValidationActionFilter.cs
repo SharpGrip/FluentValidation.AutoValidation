@@ -133,9 +133,11 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                     if (actionExecutingContext.Result != null)
                     {
                         logger.LogTrace("Action result created for action '{Action}' on controller '{Controller}'.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
+
+                        return;
                     }
 
-                    logger.LogTrace("No action result created for action '{Action}' on controller '{Controller}'.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
+                        logger.LogTrace("No action result created for action '{Action}' on controller '{Controller}'.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
                 }
 
                 logger.LogDebug("ModelState is valid for action '{Action}' on controller '{Controller}'. Proceeding with action execution.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
@@ -179,6 +181,10 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                 {
                     modelStateEntry.ValidationState = ModelValidationState.Skipped;
                 }
+            }
+            else
+            {
+                logger.LogDebug("Skipping validation of unvalidated entries due to DisableBuiltInModelValidation being set to false.");
             }
         }
     }
