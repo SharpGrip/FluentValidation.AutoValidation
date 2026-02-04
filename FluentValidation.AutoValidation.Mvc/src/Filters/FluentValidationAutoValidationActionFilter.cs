@@ -137,7 +137,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                         return;
                     }
 
-                        logger.LogTrace("No action result created for action '{Action}' on controller '{Controller}'.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
+                    logger.LogTrace("No action result created for action '{Action}' on controller '{Controller}'.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
                 }
 
                 logger.LogDebug("ModelState is valid for action '{Action}' on controller '{Controller}'. Proceeding with action execution.", controllerActionDescriptor.ActionName, controllerActionDescriptor.ControllerName);
