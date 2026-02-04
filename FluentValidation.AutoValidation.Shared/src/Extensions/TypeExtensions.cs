@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -30,6 +31,13 @@ namespace SharpGrip.FluentValidation.AutoValidation.Shared.Extensions
             if (builtInTypes.Contains(type))
             {
                 return false;
+            }
+
+            if (typeof(IEnumerable).IsAssignableFrom(type))
+            {
+                var underlyingType = type.IsArray ? type.GetElementType() : type.GetGenericArguments().LastOrDefault();
+
+                return underlyingType != null && underlyingType.IsCustomType();
             }
 
             return type.IsClass || type.IsValueType;
