@@ -9,6 +9,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Interceptors;
@@ -28,6 +29,7 @@ public class FluentValidationAutoValidationEndpointFilterTest
     [Fact]
     public async Task TestInvokeAsync_ValidatorFound()
     {
+        var logger = Substitute.For<ILogger<FluentValidationAutoValidationEndpointFilter>>();
         var serviceProvider = Substitute.For<IServiceProvider>();
         var endpointFilterInvocationContext = Substitute.For<EndpointFilterInvocationContext>();
 
@@ -38,7 +40,7 @@ public class FluentValidationAutoValidationEndpointFilterTest
 
         var validationFailuresValues = ValidationFailures.Values.ToList();
 
-        var endpointFilter = new FluentValidationAutoValidationEndpointFilter();
+        var endpointFilter = new FluentValidationAutoValidationEndpointFilter(logger);
 
         var result = (ValidationProblem) (await endpointFilter.InvokeAsync(endpointFilterInvocationContext, _ => ValueTask.FromResult(new object())!))!;
         var problemDetailsErrorValues = result.ProblemDetails.Errors.ToList();
@@ -51,6 +53,7 @@ public class FluentValidationAutoValidationEndpointFilterTest
     [Fact]
     public async Task TestInvokeAsync_ValidatorNotFound()
     {
+        var logger = Substitute.For<ILogger<FluentValidationAutoValidationEndpointFilter>>();
         var serviceProvider = Substitute.For<IServiceProvider>();
         var endpointFilterInvocationContext = Substitute.For<EndpointFilterInvocationContext>();
 
@@ -59,7 +62,7 @@ public class FluentValidationAutoValidationEndpointFilterTest
         serviceProvider.GetService(typeof(IValidator<>).MakeGenericType(typeof(TestModel))).Returns(null);
         serviceProvider.GetService(typeof(IGlobalValidationInterceptor)).Returns(null);
 
-        var endpointFilter = new FluentValidationAutoValidationEndpointFilter();
+        var endpointFilter = new FluentValidationAutoValidationEndpointFilter(logger);
 
         var result = await endpointFilter.InvokeAsync(endpointFilterInvocationContext, _ => ValueTask.FromResult(new object())!);
 
