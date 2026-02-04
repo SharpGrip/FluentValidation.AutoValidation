@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -47,6 +49,8 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                     return;
                 }
 
+                var validationResults = new Dictionary<IValidationContext, ValidationResult>();
+
                 foreach (var parameter in controllerActionDescriptor.Parameters)
                 {
                     if (actionExecutingContext.ActionArguments.TryGetValue(parameter.Name, out var subject))
@@ -68,24 +72,25 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
 
                             if (validatorInterceptor != null)
                             {
-                                validationContext = validatorInterceptor.BeforeValidation(actionExecutingContext, validationContext) ?? validationContext;
+                                validationContext = await validatorInterceptor.BeforeValidation(actionExecutingContext, validationContext) ?? validationContext;
                             }
 
                             if (globalValidationInterceptor != null)
                             {
-                                validationContext = globalValidationInterceptor.BeforeValidation(actionExecutingContext, validationContext) ?? validationContext;
+                                validationContext = await globalValidationInterceptor.BeforeValidation(actionExecutingContext, validationContext) ?? validationContext;
                             }
 
                             var validationResult = await validator.ValidateAsync(validationContext, actionExecutingContext.HttpContext.RequestAborted);
+                            validationResults.Add(validationContext, validationResult);
 
                             if (validatorInterceptor != null)
                             {
-                                validationResult = validatorInterceptor.AfterValidation(actionExecutingContext, validationContext) ?? validationResult;
+                                validationResult = await validatorInterceptor.AfterValidation(actionExecutingContext, validationContext, validationResult) ?? validationResult;
                             }
 
                             if (globalValidationInterceptor != null)
                             {
-                                validationResult = globalValidationInterceptor.AfterValidation(actionExecutingContext, validationContext) ?? validationResult;
+                                validationResult = await globalValidationInterceptor.AfterValidation(actionExecutingContext, validationContext, validationResult) ?? validationResult;
                             }
 
                             if (!validationResult.IsValid)
@@ -106,7 +111,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                     var problemDetailsFactory = serviceProvider.GetRequiredService<ProblemDetailsFactory>();
                     var validationProblemDetails = problemDetailsFactory.CreateValidationProblemDetails(actionExecutingContext.HttpContext, actionExecutingContext.ModelState);
 
-                    actionExecutingContext.Result = fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails);
+                    actionExecutingContext.Result = await fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails, validationResults);
 
                     return;
                 }
@@ -124,10 +129,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Filters
                 return false;
             }
 
-            return controller is ControllerBase ||
-                   controllerType.HasCustomAttribute<ControllerAttribute>() ||
-                   controllerType.Name.EndsWith("Controller", StringComparison.OrdinalIgnoreCase) ||
-                   controllerType.InheritsFromTypeWithNameEndingIn("Controller");
+            return controller is ControllerBase || controllerType.HasCustomAttribute<ControllerAttribute>() || controllerType.Name.EndsWith("Controller", StringComparison.OrdinalIgnoreCase) || controllerType.InheritsFromTypeWithNameEndingIn("Controller");
         }
 
         private bool HasValidBindingSource(BindingSource? bindingSource)

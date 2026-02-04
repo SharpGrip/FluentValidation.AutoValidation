@@ -10,6 +10,9 @@
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=SharpGrip_FluentValidation.AutoValidation&metric=security_rating)](https://sonarcloud.io/summary/overall?id=SharpGrip_FluentValidation.AutoValidation) \
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=SharpGrip_FluentValidation.AutoValidation&metric=coverage)](https://sonarcloud.io/summary/overall?id=SharpGrip_FluentValidation.AutoValidation)
 
+## Upgrading
+Check out the [upgrade guide](UPGRADING.md).
+
 ## Introduction
 
 SharpGrip FluentValidation AutoValidation is an extension of the [FluentValidation](https://github.com/FluentValidation/FluentValidation) (v10+) library enabling automatic asynchronous validation in MVC controllers and minimal APIs (endpoints).
@@ -116,7 +119,7 @@ builder.Services.AddFluentValidationAutoValidation(configuration =>
 
 public class CustomResultFactory : IFluentValidationAutoValidationResultFactory
 {
-    public IActionResult CreateActionResult(ActionExecutingContext context, ValidationProblemDetails? validationProblemDetails)
+    public Task<IActionResult?> CreateActionResult(ActionExecutingContext context, ValidationProblemDetails validationProblemDetails, IDictionary<IValidationContext, ValidationResult> validationResults)
     {
         return new BadRequestObjectResult(new {Title = "Validation errors", ValidationErrors = validationProblemDetails?.Errors});
     }
@@ -171,13 +174,13 @@ Implement the `IValidatorInterceptor` interface directly on a specific validator
 In the validation process, both the global and the validator interceptors are resolved and invoked (if they exist), thereby establishing a miniature pipeline of validation interceptors:
 
 ```
-==> IValidatorInterceptor.BeforeValidation()
-==> IGlobalValidationInterceptor.BeforeValidation()
+IValidatorInterceptor.BeforeValidation()
+IGlobalValidationInterceptor.BeforeValidation()
 
-Validation
+>> Validation <<
 
-==> IValidatorInterceptor.AfterValidation()
-==> IGlobalValidationInterceptor.AfterValidation()
+IValidatorInterceptor.AfterValidation()
+IGlobalValidationInterceptor.AfterValidation()
 ```
 
 Both interfaces define a `BeforeValidation` and a `AfterValidation` method.
@@ -186,7 +189,7 @@ The `BeforeValidation` method gets called before validation and allows you to re
 In case you return `null` the default `IValidationContext` will be passed to the validator.
 
 The `AfterValidation` method gets called after validation and allows you to return a custom `IValidationResult` which gets passed to the `IFluentValidationAutoValidationResultFactory`.
-In case you return `null` the default `IValidationResult` will be passed to the `IFluentValidationAutoValidationResultFactory`.
+In case you return `null` the existing `ValidationResult` will be passed to the `IFluentValidationAutoValidationResultFactory`.
 
 ### MVC controllers
 
@@ -196,16 +199,16 @@ builder.Services.AddTransient<IGlobalValidationInterceptor, CustomGlobalValidati
 
 public class CustomGlobalValidationInterceptor : IGlobalValidationInterceptor
 {
-    public IValidationContext? BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+    public Task<IValidationContext?> BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, CancellationToken cancellationToken = default)
     {
         // Return a custom `IValidationContext` or null.
-        return null;
+        return Task.FromResult<IValidationContext?>(null);
     }
 
-    public ValidationResult? AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+    public Task<ValidationResult?> AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, ValidationResult validationResult, CancellationToken cancellationToken = default)
     {
         // Return a custom `ValidationResult` or null.
-        return null;
+        return Task.FromResult<ValidationResult?>(null);
     }
 }
 
@@ -219,16 +222,16 @@ private class TestValidator : AbstractValidator<TestModel>, IValidatorIntercepto
         RuleFor(x => x.Parameter3).Empty();
     }
 
-    public IValidationContext? BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+    public Task<IValidationContext?> BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, CancellationToken cancellationToken = default)
     {
         // Return a custom `IValidationContext` or null.
-        return null;
+        return Task.FromResult<IValidationContext?>(null);
     }
 
-    public ValidationResult? AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+    public Task<ValidationResult?> AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, ValidationResult validationResult, CancellationToken cancellationToken = default)
     {
         // Return a custom `ValidationResult` or null.
-        return null;
+        return Task.FromResult<ValidationResult?>(null);
     }
 }
 ```
@@ -241,16 +244,16 @@ builder.Services.AddTransient<IGlobalValidationInterceptor, CustomGlobalValidati
 
 public class CustomGlobalValidationInterceptor : IGlobalValidationInterceptor
 {
-    public IValidationContext? BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+    public Task<IValidationContext?> BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext, CancellationToken cancellationToken = default)
     {
         // Return a custom `IValidationContext` or null.
-        return null;
+        return Task.FromResult<IValidationContext?>(null);
     }
 
-    public ValidationResult? AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+    public Task<ValidationResult?> AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext, ValidationResult validationResult, CancellationToken cancellationToken = default)
     {
         // Return a custom `ValidationResult` or null.
-        return null;
+        return Task.FromResult<ValidationResult?>(null);
     }
 }
 
@@ -264,16 +267,16 @@ private class TestValidator : AbstractValidator<TestModel>, IValidatorIntercepto
         RuleFor(x => x.Parameter3).Empty();
     }
 
-    public IValidationContext? BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+    public Task<IValidationContext?> BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext, CancellationToken cancellationToken = default)
     {
         // Return a custom `IValidationContext` or null.
-        return null;
+        return Task.FromResult<IValidationContext?>(null);
     }
 
-    public ValidationResult? AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+    public Task<ValidationResult?> AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext, ValidationResult validationResult, CancellationToken cancellationToken = default)
     {
         // Return a custom `ValidationResult` or null.
-        return null;
+        return Task.FromResult<ValidationResult?>(null);
     }
 }
 ```

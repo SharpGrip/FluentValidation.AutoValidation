@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
@@ -76,7 +77,7 @@ public class FluentValidationAutoValidationActionFilterTest
         serviceProvider.GetService(typeof(ProblemDetailsFactory)).Returns(problemDetailsFactory);
 
         problemDetailsFactory.CreateValidationProblemDetails(httpContext, modelStateDictionary).Returns(validationProblemDetails);
-        fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails).Returns(new BadRequestObjectResult(validationProblemDetails));
+        fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails, Arg.Any<IDictionary<IValidationContext, ValidationResult>>()).Returns(new BadRequestObjectResult(validationProblemDetails));
         httpContext.RequestServices.Returns(serviceProvider);
         actionExecutingContext.Controller.Returns(controller);
         actionExecutingContext.ActionDescriptor = controllerActionDescriptor;
@@ -156,7 +157,7 @@ public class FluentValidationAutoValidationActionFilterTest
         var actionExecutedContext = Substitute.For<ActionExecutedContext>(actionContext, new List<IFilterMetadata>(), new object());
 
         var fluentValidationAutoValidationResultFactory = Substitute.For<IFluentValidationAutoValidationResultFactory>();
-        fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails).Returns(new BadRequestObjectResult(validationProblemDetails));
+        fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails, Arg.Any<IDictionary<IValidationContext, ValidationResult>>()).Returns(new BadRequestObjectResult(validationProblemDetails));
 
         var autoValidationMvcConfiguration = Substitute.For<IOptions<AutoValidationMvcConfiguration>>();
         autoValidationMvcConfiguration.Value.Returns(new AutoValidationMvcConfiguration());
@@ -215,27 +216,27 @@ public class FluentValidationAutoValidationActionFilterTest
             RuleFor(x => x.Parameter3).Empty();
         }
 
-        public IValidationContext? BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+        public Task<IValidationContext?> BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, CancellationToken cancellationToken = default)
         {
-            return null;
+            return Task.FromResult<IValidationContext?>(null);
         }
 
-        public ValidationResult? AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+        public Task<ValidationResult?> AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, ValidationResult validationResult, CancellationToken cancellationToken = default)
         {
-            return null;
+            return Task.FromResult<ValidationResult?>(null);
         }
     }
 
     private class GlobalValidationInterceptor : IGlobalValidationInterceptor
     {
-        public IValidationContext? BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+        public Task<IValidationContext?> BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, CancellationToken cancellationToken = default)
         {
-            return null;
+            return Task.FromResult<IValidationContext?>(null);
         }
 
-        public ValidationResult? AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+        public Task<ValidationResult?> AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, ValidationResult validationResult, CancellationToken cancellationToken = default)
         {
-            return null;
+            return Task.FromResult<ValidationResult?>(null);
         }
     }
 }
