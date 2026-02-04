@@ -14,21 +14,18 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Interceptors
     public interface IGlobalValidationInterceptor
     {
         /// <summary>
-        /// Executes custom logic before the validation process. Allows intercepting and altering the validation context
-        /// prior to the execution of the validation rules.
+        /// Executes custom logic before the validation process. Allows intercepting and altering the validation context prior to the execution of the validation rules.
         /// </summary>
         /// <param name="endpointFilterInvocationContext">The context of the currently executing endpoint filter, providing access to details about the HTTP request and endpoint.</param>
         /// <param name="validationContext">The validation context containing information about the object being validated.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>
-        /// A transformed or new <see cref="IValidationContext"/> instance to be used in the validation process,
-        /// or null if no changes need to be applied.
+        /// A transformed or new <see cref="IValidationContext"/> instance to be used in the validation process, or null if no changes need to be applied.
         /// </returns>
         public Task<IValidationContext?> BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Executes custom logic after the validation process. Allows intercepting and altering the validation result
-        /// or performing additional operations after the validation has been completed.
+        /// Executes custom logic after the validation process. Allows intercepting and altering the validation result or performing additional operations after the validation has been completed.
         /// </summary>
         /// <param name="endpointFilterInvocationContext">The context of the currently executing endpoint filter, providing access to details about the HTTP request and endpoint.</param>
         /// <param name="validationContext">The validation context containing information about the object that was validated.</param>
