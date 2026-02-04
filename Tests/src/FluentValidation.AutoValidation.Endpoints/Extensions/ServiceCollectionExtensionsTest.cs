@@ -1,4 +1,6 @@
-﻿using FluentValidation.Results;
+﻿// ReSharper disable InconsistentNaming
+
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;

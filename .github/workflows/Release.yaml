@@ -1,7 +1,7 @@
 name: FluentValidation.AutoValidation [Release]
 
 env:
-  DOTNET_VERSION: 9.0.x
+  DOTNET_VERSION: 10.0.x
   DOTNET_BUILD_CONFIGURATION: Release
   DOTNET_PACKAGES_OUTPUT_DIRECTORY: .nuget
   NUGET_SOURCE: https://api.nuget.org/v3/index.json
@@ -18,12 +18,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 

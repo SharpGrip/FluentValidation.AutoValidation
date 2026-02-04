@@ -11,7 +11,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Enums
         All = 1,
 
         /// <summary>
-        /// Enables asynchronous automatic validation on controllers inheriting from <see cref="ControllerBase"/> decorated with a <see cref="FluentValidationAutoValidationAttribute"/> attribute.
+        /// Enables asynchronous automatic validation on controllers inheriting from <see cref="ControllerBase"/> decorated with a <see cref="AutoValidationAttribute"/> attribute.
         /// </summary>
         Annotations = 2
     }

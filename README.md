@@ -10,6 +10,10 @@
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=SharpGrip_FluentValidation.AutoValidation&metric=security_rating)](https://sonarcloud.io/summary/overall?id=SharpGrip_FluentValidation.AutoValidation) \
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=SharpGrip_FluentValidation.AutoValidation&metric=coverage)](https://sonarcloud.io/summary/overall?id=SharpGrip_FluentValidation.AutoValidation)
 
+## Upgrading
+
+Check out the [upgrade guide](UPGRADING.md).
+
 ## Introduction
 
 SharpGrip FluentValidation AutoValidation is an extension of the [FluentValidation](https://github.com/FluentValidation/FluentValidation) (v10+) library enabling automatic asynchronous validation in MVC controllers and minimal APIs (endpoints).
@@ -72,17 +76,17 @@ app.MapPost("/", (SomeOtherModel someOtherModel) => $"Hello again {someOtherMode
 
 ### MVC controllers
 
-| Property                                     | Default value            | Description                                                                                                                                                                                                                                                                                                                                                                                              |
-|----------------------------------------------|--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| DisableBuiltInModelValidation                | `false`                  | Disables the built-in .NET model (data annotations) validation.                                                                                                                                                                                                                                                                                                                                          |
-| ValidationStrategy                           | `ValidationStrategy.All` | Configures the validation strategy. Validation strategy `ValidationStrategy.All` enables asynchronous automatic validation on all controllers inheriting from `ControllerBase`. Validation strategy `ValidationStrategy.Annotations` enables asynchronous automatic validation on controllers inheriting from `ControllerBase` decorated (class or method) with a `[AutoValidationAttribute]` attribute. |
-| EnableBodyBindingSourceAutomaticValidation   | `true`                   | Enables asynchronous automatic validation for parameters bound from `BindingSource.Body` binding sources (typically parameters decorated with the `[FromBody]` attribute).                                                                                                                                                                                                                               |
-| EnableFormBindingSourceAutomaticValidation   | `false`                  | Enables asynchronous automatic validation for parameters bound from `BindingSource.Form` binding sources (typically parameters decorated with the `[FromForm]` attribute).                                                                                                                                                                                                                               |
-| EnableQueryBindingSourceAutomaticValidation  | `true`                   | Enables asynchronous automatic validation for parameters bound from `BindingSource.Query` binding sources (typically parameters decorated with the `[FromQuery]` attribute).                                                                                                                                                                                                                             |
-| EnablePathBindingSourceAutomaticValidation   | `false`                  | Enables asynchronous automatic validation for parameters bound from `BindingSource.Path` binding sources (typically parameters decorated with the `[FromRoute]` attribute).                                                                                                                                                                                                                              |
-| EnableHeaderBindingSourceAutomaticValidation   | `false`                  | Enables asynchronous automatic validation for parameters bound from `BindingSource.Header` binding sources (typically parameters decorated with the `[FromHeader]` attribute).                                                                                                                                                                                                                              |
-| EnableCustomBindingSourceAutomaticValidation | `false`                  | Enables asynchronous automatic validation for parameters bound from `BindingSource.Custom` binding sources.                                                                                                                                                                                                                                                                                              |
-| EnableNullBindingSourceAutomaticValidation   | `false`                  | Enables asynchronous automatic validation for parameters not bound from any binding source (typically parameters without a declared or inferred binding source).                                                                                                                                                                                                                                         |
+| Property                                     | Default value            | Description                                                                                                                                                                                                                                                                                                                            |
+|----------------------------------------------|--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| DisableBuiltInModelValidation                | `false`                  | Disables the built-in .NET model (data annotations) validation.                                                                                                                                                                                                                                                                        |
+| ValidationStrategy                           | `ValidationStrategy.All` | Configures the validation strategy. Validation strategy `ValidationStrategy.All` enables asynchronous automatic validation on all controllers. Validation strategy `ValidationStrategy.Annotations` enables asynchronous automatic validation on controllers decorated (class or method) with a `[AutoValidationAttribute]` attribute. |
+| EnableBodyBindingSourceAutomaticValidation   | `true`                   | Enables asynchronous automatic validation for parameters bound from `BindingSource.Body` binding sources (typically parameters decorated with the `[FromBody]` attribute).                                                                                                                                                             |
+| EnableFormBindingSourceAutomaticValidation   | `true`                   | Enables asynchronous automatic validation for parameters bound from `BindingSource.Form` binding sources (typically parameters decorated with the `[FromForm]` attribute).                                                                                                                                                             |
+| EnableQueryBindingSourceAutomaticValidation  | `true`                   | Enables asynchronous automatic validation for parameters bound from `BindingSource.Query` binding sources (typically parameters decorated with the `[FromQuery]` attribute).                                                                                                                                                           |
+| EnablePathBindingSourceAutomaticValidation   | `true`                   | Enables asynchronous automatic validation for parameters bound from `BindingSource.Path` binding sources (typically parameters decorated with the `[FromRoute]` attribute).                                                                                                                                                            |
+| EnableHeaderBindingSourceAutomaticValidation | `false`                  | Enables asynchronous automatic validation for parameters bound from `BindingSource.Header` binding sources (typically parameters decorated with the `[FromHeader]` attribute).                                                                                                                                                         |
+| EnableCustomBindingSourceAutomaticValidation | `false`                  | Enables asynchronous automatic validation for parameters bound from `BindingSource.Custom` binding sources.                                                                                                                                                                                                                            |
+| EnableNullBindingSourceAutomaticValidation   | `false`                  | Enables asynchronous automatic validation for parameters not bound from any binding source (typically parameters without a declared or inferred binding source).                                                                                                                                                                       |
 
 ```cs
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
@@ -116,7 +120,7 @@ builder.Services.AddFluentValidationAutoValidation(configuration =>
 
 public class CustomResultFactory : IFluentValidationAutoValidationResultFactory
 {
-    public IActionResult CreateActionResult(ActionExecutingContext context, ValidationProblemDetails? validationProblemDetails)
+    public Task<IActionResult?> CreateActionResult(ActionExecutingContext context, ValidationProblemDetails validationProblemDetails, IDictionary<IValidationContext, ValidationResult> validationResults)
     {
         return new BadRequestObjectResult(new {Title = "Validation errors", ValidationErrors = validationProblemDetails?.Errors});
     }
@@ -171,13 +175,13 @@ Implement the `IValidatorInterceptor` interface directly on a specific validator
 In the validation process, both the global and the validator interceptors are resolved and invoked (if they exist), thereby establishing a miniature pipeline of validation interceptors:
 
 ```
-==> IValidatorInterceptor.BeforeValidation()
-==> IGlobalValidationInterceptor.BeforeValidation()
+IValidatorInterceptor.BeforeValidation()
+IGlobalValidationInterceptor.BeforeValidation()
 
-Validation
+>> Validation <<
 
-==> IValidatorInterceptor.AfterValidation()
-==> IGlobalValidationInterceptor.AfterValidation()
+IValidatorInterceptor.AfterValidation()
+IGlobalValidationInterceptor.AfterValidation()
 ```
 
 Both interfaces define a `BeforeValidation` and a `AfterValidation` method.
@@ -186,7 +190,7 @@ The `BeforeValidation` method gets called before validation and allows you to re
 In case you return `null` the default `IValidationContext` will be passed to the validator.
 
 The `AfterValidation` method gets called after validation and allows you to return a custom `IValidationResult` which gets passed to the `IFluentValidationAutoValidationResultFactory`.
-In case you return `null` the default `IValidationResult` will be passed to the `IFluentValidationAutoValidationResultFactory`.
+In case you return `null` the existing `ValidationResult` will be passed to the `IFluentValidationAutoValidationResultFactory`.
 
 ### MVC controllers
 
@@ -196,16 +200,16 @@ builder.Services.AddTransient<IGlobalValidationInterceptor, CustomGlobalValidati
 
 public class CustomGlobalValidationInterceptor : IGlobalValidationInterceptor
 {
-    public IValidationContext? BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+    public Task<IValidationContext?> BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, CancellationToken cancellationToken = default)
     {
         // Return a custom `IValidationContext` or null.
-        return null;
+        return Task.FromResult<IValidationContext?>(null);
     }
 
-    public ValidationResult? AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+    public Task<ValidationResult?> AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, ValidationResult validationResult, CancellationToken cancellationToken = default)
     {
         // Return a custom `ValidationResult` or null.
-        return null;
+        return Task.FromResult<ValidationResult?>(null);
     }
 }
 
@@ -219,16 +223,16 @@ private class TestValidator : AbstractValidator<TestModel>, IValidatorIntercepto
         RuleFor(x => x.Parameter3).Empty();
     }
 
-    public IValidationContext? BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+    public Task<IValidationContext?> BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, CancellationToken cancellationToken = default)
     {
         // Return a custom `IValidationContext` or null.
-        return null;
+        return Task.FromResult<IValidationContext?>(null);
     }
 
-    public ValidationResult? AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+    public Task<ValidationResult?> AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, ValidationResult validationResult, CancellationToken cancellationToken = default)
     {
         // Return a custom `ValidationResult` or null.
-        return null;
+        return Task.FromResult<ValidationResult?>(null);
     }
 }
 ```
@@ -241,16 +245,16 @@ builder.Services.AddTransient<IGlobalValidationInterceptor, CustomGlobalValidati
 
 public class CustomGlobalValidationInterceptor : IGlobalValidationInterceptor
 {
-    public IValidationContext? BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+    public Task<IValidationContext?> BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext, CancellationToken cancellationToken = default)
     {
         // Return a custom `IValidationContext` or null.
-        return null;
+        return Task.FromResult<IValidationContext?>(null);
     }
 
-    public ValidationResult? AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+    public Task<ValidationResult?> AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext, ValidationResult validationResult, CancellationToken cancellationToken = default)
     {
         // Return a custom `ValidationResult` or null.
-        return null;
+        return Task.FromResult<ValidationResult?>(null);
     }
 }
 
@@ -264,16 +268,16 @@ private class TestValidator : AbstractValidator<TestModel>, IValidatorIntercepto
         RuleFor(x => x.Parameter3).Empty();
     }
 
-    public IValidationContext? BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+    public Task<IValidationContext?> BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext, CancellationToken cancellationToken = default)
     {
         // Return a custom `IValidationContext` or null.
-        return null;
+        return Task.FromResult<IValidationContext?>(null);
     }
 
-    public ValidationResult? AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+    public Task<ValidationResult?> AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext, ValidationResult validationResult, CancellationToken cancellationToken = default)
     {
         // Return a custom `ValidationResult` or null.
-        return null;
+        return Task.FromResult<ValidationResult?>(null);
     }
 }
 ```

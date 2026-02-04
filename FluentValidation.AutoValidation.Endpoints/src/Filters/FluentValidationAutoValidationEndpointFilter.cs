@@ -2,13 +2,14 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Interceptors;
 using SharpGrip.FluentValidation.AutoValidation.Endpoints.Results;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
 
 namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters
 {
-    public class FluentValidationAutoValidationEndpointFilter : IEndpointFilter
+    public class FluentValidationAutoValidationEndpointFilter(ILogger<FluentValidationAutoValidationEndpointFilter> logger) : IEndpointFilter
     {
         public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext endpointFilterInvocationContext, EndpointFilterDelegate next)
         {
@@ -18,7 +19,8 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters
             {
                 if (argument != null && argument.GetType().IsCustomType() && serviceProvider.GetValidator(argument.GetType()) is IValidator validator)
                 {
-                    // ReSharper disable once SuspiciousTypeConversion.Global
+                    logger.LogDebug("Starting validation for argument of type '{Type}'.", argument.GetType().Name);
+
                     var validatorInterceptor = validator as IValidatorInterceptor;
                     var globalValidationInterceptor = serviceProvider.GetService<IGlobalValidationInterceptor>();
 
@@ -26,37 +28,51 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Filters
 
                     if (validatorInterceptor != null)
                     {
-                        validationContext = validatorInterceptor.BeforeValidation(endpointFilterInvocationContext, validationContext) ?? validationContext;
+                        logger.LogDebug("Invoking validator interceptor BeforeValidation for argument '{Argument}'.", argument.GetType().Name);
+                        validationContext = await validatorInterceptor.BeforeValidation(endpointFilterInvocationContext, validationContext, endpointFilterInvocationContext.HttpContext.RequestAborted) ?? validationContext;
                     }
 
                     if (globalValidationInterceptor != null)
                     {
-                        validationContext = globalValidationInterceptor.BeforeValidation(endpointFilterInvocationContext, validationContext) ?? validationContext;
+                        logger.LogDebug("Invoking global validation interceptor BeforeValidation for argument '{Argument}'.", argument.GetType().Name);
+                        validationContext = await globalValidationInterceptor.BeforeValidation(endpointFilterInvocationContext, validationContext, endpointFilterInvocationContext.HttpContext.RequestAborted) ?? validationContext;
                     }
 
                     var validationResult = await validator.ValidateAsync(validationContext, endpointFilterInvocationContext.HttpContext.RequestAborted);
 
                     if (validatorInterceptor != null)
                     {
-                        validationResult = validatorInterceptor.AfterValidation(endpointFilterInvocationContext, validationContext) ?? validationResult;
+                        logger.LogDebug("Invoking validator interceptor AfterValidation for argument '{Argument}'.", argument.GetType().Name);
+                        validationResult = await validatorInterceptor.AfterValidation(endpointFilterInvocationContext, validationContext, validationResult, endpointFilterInvocationContext.HttpContext.RequestAborted) ?? validationResult;
                     }
 
                     if (globalValidationInterceptor != null)
                     {
-                        validationResult = globalValidationInterceptor.AfterValidation(endpointFilterInvocationContext, validationContext) ?? validationResult;
+                        logger.LogDebug("Invoking global validation interceptor AfterValidation for argument '{Argument}'.", argument.GetType().Name);
+                        validationResult = await globalValidationInterceptor.AfterValidation(endpointFilterInvocationContext, validationContext, validationResult, endpointFilterInvocationContext.HttpContext.RequestAborted) ?? validationResult;
                     }
 
                     if (!validationResult.IsValid)
                     {
+                        logger.LogDebug("Validation result not valid for argument '{Argument}': {ErrorCount} validation error(s) found.", argument.GetType().Name, validationResult.Errors.Count);
+
                         var fluentValidationAutoValidationResultFactory = serviceProvider.GetService<IFluentValidationAutoValidationResultFactory>();
+
+                        logger.LogDebug("Creating result for path '{Path}'.", endpointFilterInvocationContext.HttpContext.Request.Path);
 
                         if (fluentValidationAutoValidationResultFactory != null)
                         {
+                            logger.LogTrace("Creating result for path '{Path}' using a custom result factory.", endpointFilterInvocationContext.HttpContext.Request.Path);
+
                             return fluentValidationAutoValidationResultFactory.CreateResult(endpointFilterInvocationContext, validationResult);
                         }
 
+                        logger.LogTrace("Creating result for path '{Path}' using the default result factory.", endpointFilterInvocationContext.HttpContext.Request.Path);
+
                         return new FluentValidationAutoValidationDefaultResultFactory().CreateResult(endpointFilterInvocationContext, validationResult);
                     }
+
+                    logger.LogDebug("Validation result valid for argument '{Argument}'.", argument.GetType().Name);
                 }
             }
 

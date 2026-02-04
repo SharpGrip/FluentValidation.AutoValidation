@@ -1,4 +1,7 @@
-﻿using System;
+﻿// ReSharper disable InconsistentNaming
+
+using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Attributes;
 using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
@@ -13,6 +16,7 @@ public class TypeExtensionsTest
     {
         Assert.True(typeof(TestModelClass).IsCustomType());
         Assert.True(typeof(TestModelRecord).IsCustomType());
+        Assert.True(typeof(TestModelStruct).IsCustomType());
         Assert.False(typeof(TestModelEnum).IsCustomType());
         Assert.False(typeof(Enum).IsCustomType());
         Assert.False(typeof(string).IsCustomType());
@@ -36,6 +40,88 @@ public class TypeExtensionsTest
         Assert.False(typeof(Guid).IsCustomType());
         Assert.False(typeof(DateOnly).IsCustomType());
         Assert.False(typeof(TimeOnly).IsCustomType());
+        Assert.False(typeof(Uri).IsCustomType());
+    }
+
+    [Fact]
+    public void Test_IsCustomType_Collections()
+    {
+        Assert.True(typeof(ICollection<TestModelClass>).IsCustomType());
+        Assert.True(typeof(ICollection<TestModelRecord>).IsCustomType());
+        Assert.True(typeof(ICollection<TestModelStruct>).IsCustomType());
+        Assert.False(typeof(ICollection<TestModelEnum>).IsCustomType());
+        Assert.False(typeof(ICollection<Enum>).IsCustomType());
+        Assert.False(typeof(ICollection<string>).IsCustomType());
+
+        Assert.True(typeof(IList<TestModelClass>).IsCustomType());
+        Assert.True(typeof(IList<TestModelRecord>).IsCustomType());
+        Assert.True(typeof(IList<TestModelStruct>).IsCustomType());
+        Assert.False(typeof(IList<TestModelEnum>).IsCustomType());
+        Assert.False(typeof(IList<Enum>).IsCustomType());
+        Assert.False(typeof(IList<string>).IsCustomType());
+
+        Assert.True(typeof(List<TestModelClass>).IsCustomType());
+        Assert.True(typeof(List<TestModelRecord>).IsCustomType());
+        Assert.True(typeof(List<TestModelStruct>).IsCustomType());
+        Assert.False(typeof(List<TestModelEnum>).IsCustomType());
+        Assert.False(typeof(List<Enum>).IsCustomType());
+        Assert.False(typeof(List<string>).IsCustomType());
+
+        Assert.True(typeof(TestModelClass[]).IsCustomType());
+        Assert.True(typeof(TestModelRecord[]).IsCustomType());
+        Assert.True(typeof(TestModelStruct[]).IsCustomType());
+        Assert.False(typeof(TestModelEnum[]).IsCustomType());
+        Assert.False(typeof(Enum[]).IsCustomType());
+        Assert.False(typeof(string[]).IsCustomType());
+
+        Assert.True(typeof(Dictionary<string, TestModelClass>).IsCustomType());
+        Assert.True(typeof(Dictionary<string, TestModelRecord>).IsCustomType());
+        Assert.True(typeof(Dictionary<string, TestModelStruct>).IsCustomType());
+        Assert.False(typeof(Dictionary<string, TestModelEnum>).IsCustomType());
+        Assert.False(typeof(Dictionary<string, Enum>).IsCustomType());
+        Assert.False(typeof(Dictionary<string, string>).IsCustomType());
+
+        Assert.True(typeof(HashSet<TestModelClass>).IsCustomType());
+        Assert.True(typeof(HashSet<TestModelRecord>).IsCustomType());
+        Assert.True(typeof(HashSet<TestModelStruct>).IsCustomType());
+        Assert.False(typeof(HashSet<TestModelEnum>).IsCustomType());
+        Assert.False(typeof(HashSet<Enum>).IsCustomType());
+        Assert.False(typeof(HashSet<string>).IsCustomType());
+
+        Assert.True(typeof(IEnumerable<TestModelClass>).IsCustomType());
+        Assert.True(typeof(IEnumerable<TestModelRecord>).IsCustomType());
+        Assert.True(typeof(IEnumerable<TestModelStruct>).IsCustomType());
+        Assert.False(typeof(IEnumerable<TestModelEnum>).IsCustomType());
+        Assert.False(typeof(IEnumerable<Enum>).IsCustomType());
+        Assert.False(typeof(IEnumerable<string>).IsCustomType());
+
+        Assert.True(typeof(IReadOnlyList<TestModelClass>).IsCustomType());
+        Assert.True(typeof(IReadOnlyList<TestModelRecord>).IsCustomType());
+        Assert.True(typeof(IReadOnlyList<TestModelStruct>).IsCustomType());
+        Assert.False(typeof(IReadOnlyList<TestModelEnum>).IsCustomType());
+        Assert.False(typeof(IReadOnlyList<Enum>).IsCustomType());
+        Assert.False(typeof(IReadOnlyList<string>).IsCustomType());
+
+        Assert.True(typeof(IReadOnlyCollection<TestModelClass>).IsCustomType());
+        Assert.True(typeof(IReadOnlyCollection<TestModelRecord>).IsCustomType());
+        Assert.True(typeof(IReadOnlyCollection<TestModelStruct>).IsCustomType());
+        Assert.False(typeof(IReadOnlyCollection<TestModelEnum>).IsCustomType());
+        Assert.False(typeof(IReadOnlyCollection<Enum>).IsCustomType());
+        Assert.False(typeof(IReadOnlyCollection<string>).IsCustomType());
+
+        Assert.True(typeof(ISet<TestModelClass>).IsCustomType());
+        Assert.True(typeof(ISet<TestModelRecord>).IsCustomType());
+        Assert.True(typeof(ISet<TestModelStruct>).IsCustomType());
+        Assert.False(typeof(ISet<TestModelEnum>).IsCustomType());
+        Assert.False(typeof(ISet<Enum>).IsCustomType());
+        Assert.False(typeof(ISet<string>).IsCustomType());
+
+        Assert.False(typeof(IAsyncEnumerable<TestModelClass>).IsCustomType());
+        Assert.False(typeof(IAsyncEnumerable<TestModelRecord>).IsCustomType());
+        Assert.False(typeof(IAsyncEnumerable<TestModelStruct>).IsCustomType());
+        Assert.False(typeof(IAsyncEnumerable<TestModelEnum>).IsCustomType());
+        Assert.False(typeof(IAsyncEnumerable<Enum>).IsCustomType());
+        Assert.False(typeof(IAsyncEnumerable<string>).IsCustomType());
     }
 
     [Fact]
@@ -67,6 +153,8 @@ public class TypeExtensionsTest
 
     [AutoValidateNever]
     private record TestModelRecord;
+
+    private struct TestModelStruct;
 
     private enum TestModelEnum;
 

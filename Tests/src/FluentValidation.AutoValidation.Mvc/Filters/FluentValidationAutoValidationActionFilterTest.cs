@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration;
@@ -37,7 +39,7 @@ public class FluentValidationAutoValidationActionFilterTest
                     Parameter2 = "Value 2",
                     Parameter3 = "Value 3"
                 }
-            },
+            }
         };
         var controllerActionDescriptor = new ControllerActionDescriptor
         {
@@ -65,6 +67,7 @@ public class FluentValidationAutoValidationActionFilterTest
         var problemDetailsFactory = Substitute.For<ProblemDetailsFactory>();
         var fluentValidationAutoValidationResultFactory = Substitute.For<IFluentValidationAutoValidationResultFactory>();
         var autoValidationMvcConfiguration = Substitute.For<IOptions<AutoValidationMvcConfiguration>>();
+        var logger = Substitute.For<ILogger<FluentValidationAutoValidationActionFilter>>();
         var httpContext = Substitute.For<HttpContext>();
         var controller = Substitute.For<TestController>();
         var actionContext = Substitute.For<ActionContext>(httpContext, Substitute.For<RouteData>(), controllerActionDescriptor, modelStateDictionary);
@@ -76,14 +79,14 @@ public class FluentValidationAutoValidationActionFilterTest
         serviceProvider.GetService(typeof(ProblemDetailsFactory)).Returns(problemDetailsFactory);
 
         problemDetailsFactory.CreateValidationProblemDetails(httpContext, modelStateDictionary).Returns(validationProblemDetails);
-        fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails).Returns(new BadRequestObjectResult(validationProblemDetails));
+        fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails, Arg.Any<IDictionary<IValidationContext, ValidationResult>>()).Returns(new BadRequestObjectResult(validationProblemDetails));
         httpContext.RequestServices.Returns(serviceProvider);
         actionExecutingContext.Controller.Returns(controller);
         actionExecutingContext.ActionDescriptor = controllerActionDescriptor;
         actionExecutingContext.ActionArguments.Returns(actionArguments);
         autoValidationMvcConfiguration.Value.Returns(new AutoValidationMvcConfiguration());
 
-        var actionFilter = new FluentValidationAutoValidationActionFilter(fluentValidationAutoValidationResultFactory, autoValidationMvcConfiguration);
+        var actionFilter = new FluentValidationAutoValidationActionFilter(fluentValidationAutoValidationResultFactory, autoValidationMvcConfiguration, logger);
 
         await actionFilter.OnActionExecutionAsync(actionExecutingContext, () => Task.FromResult(actionExecutedContext));
 
@@ -129,7 +132,7 @@ public class FluentValidationAutoValidationActionFilterTest
         {
             Parameters =
             [
-                new()
+                new ParameterDescriptor
                 {
                     Name = "request",
                     ParameterType = typeof(CreateAnimalRequest),
@@ -156,12 +159,14 @@ public class FluentValidationAutoValidationActionFilterTest
         var actionExecutedContext = Substitute.For<ActionExecutedContext>(actionContext, new List<IFilterMetadata>(), new object());
 
         var fluentValidationAutoValidationResultFactory = Substitute.For<IFluentValidationAutoValidationResultFactory>();
-        fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails).Returns(new BadRequestObjectResult(validationProblemDetails));
+        fluentValidationAutoValidationResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails, Arg.Any<IDictionary<IValidationContext, ValidationResult>>()).Returns(new BadRequestObjectResult(validationProblemDetails));
 
         var autoValidationMvcConfiguration = Substitute.For<IOptions<AutoValidationMvcConfiguration>>();
         autoValidationMvcConfiguration.Value.Returns(new AutoValidationMvcConfiguration());
 
-        var actionFilter = new FluentValidationAutoValidationActionFilter(fluentValidationAutoValidationResultFactory, autoValidationMvcConfiguration);
+        var logger = Substitute.For<ILogger<FluentValidationAutoValidationActionFilter>>();
+
+        var actionFilter = new FluentValidationAutoValidationActionFilter(fluentValidationAutoValidationResultFactory, autoValidationMvcConfiguration, logger);
 
         // Act
         await actionFilter.OnActionExecutionAsync(actionExecutingContext, () => Task.FromResult(actionExecutedContext));
@@ -169,46 +174,35 @@ public class FluentValidationAutoValidationActionFilterTest
         // Assert
         var modelStateDictionaryValues = modelStateDictionary.Values.ToList();
         var validationFailuresValues = validationFailures.Values.ToList();
-        var badRequestObjectResult = (BadRequestObjectResult)actionExecutingContext.Result!;
-        var badRequestObjectResultValidationProblemDetails = (ValidationProblemDetails)badRequestObjectResult.Value!;
+        var badRequestObjectResult = (BadRequestObjectResult) actionExecutingContext.Result!;
+        var badRequestObjectResultValidationProblemDetails = (ValidationProblemDetails) badRequestObjectResult.Value!;
 
         Assert.Contains(validationFailuresValues[0].First(), modelStateDictionaryValues[0].Errors.Select(error => error.ErrorMessage));
         Assert.Contains(validationFailuresValues[0].First(), badRequestObjectResultValidationProblemDetails.Errors[nameof(CreatePersonRequest.Name)][0]);
     }
 
-    public class AnimalsController : ControllerBase
-    {
-    }
+    public class AnimalsController : ControllerBase;
 
-    public class CreateAnimalRequest
-    {
-    }
+    public class CreateAnimalRequest;
 
     public class CreatePersonRequest : CreateAnimalRequest
     {
         public required string Name { get; set; }
     }
 
-    public class CreateAnimalRequestValidator : AbstractValidator<CreateAnimalRequest>
-    {
-        public CreateAnimalRequestValidator()
-        {
-        }
-    }
+    public class CreateAnimalRequestValidator : AbstractValidator<CreateAnimalRequest>;
 
     public class CreatePersonRequestValidator : AbstractValidator<CreatePersonRequest>
     {
         public CreatePersonRequestValidator()
         {
-            this.Include(new CreateAnimalRequestValidator());
+            Include(new CreateAnimalRequestValidator());
 
-            this.RuleFor(x => x.Name).Equal("John Doe");
+            RuleFor(x => x.Name).Equal("John Doe");
         }
     }
 
-    public class TestController : ControllerBase
-    {
-    }
+    public class TestController : ControllerBase;
 
     private class TestModel
     {
@@ -226,27 +220,27 @@ public class FluentValidationAutoValidationActionFilterTest
             RuleFor(x => x.Parameter3).Empty();
         }
 
-        public IValidationContext? BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+        public Task<IValidationContext?> BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, CancellationToken cancellationToken = default)
         {
-            return null;
+            return Task.FromResult<IValidationContext?>(null);
         }
 
-        public ValidationResult? AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+        public Task<ValidationResult?> AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, ValidationResult validationResult, CancellationToken cancellationToken = default)
         {
-            return null;
+            return Task.FromResult<ValidationResult?>(null);
         }
     }
 
     private class GlobalValidationInterceptor : IGlobalValidationInterceptor
     {
-        public IValidationContext? BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+        public Task<IValidationContext?> BeforeValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, CancellationToken cancellationToken = default)
         {
-            return null;
+            return Task.FromResult<IValidationContext?>(null);
         }
 
-        public ValidationResult? AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext)
+        public Task<ValidationResult?> AfterValidation(ActionExecutingContext actionExecutingContext, IValidationContext validationContext, ValidationResult validationResult, CancellationToken cancellationToken = default)
         {
-            return null;
+            return Task.FromResult<ValidationResult?>(null);
         }
     }
 }

@@ -14,8 +14,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions
         /// <param name="serviceCollection">The service collection.</param>
         /// <param name="autoValidationEndpointsConfiguration">The configuration delegate used to configure the FluentValidation AutoValidation Endpoints validation.</param>
         /// <returns>The service collection.</returns>
-        public static IServiceCollection AddFluentValidationAutoValidation(this IServiceCollection serviceCollection,
-            Action<AutoValidationEndpointsConfiguration>? autoValidationEndpointsConfiguration = null)
+        public static IServiceCollection AddFluentValidationAutoValidation(this IServiceCollection serviceCollection, Action<AutoValidationEndpointsConfiguration>? autoValidationEndpointsConfiguration = null)
         {
             var configuration = new AutoValidationEndpointsConfiguration();
 

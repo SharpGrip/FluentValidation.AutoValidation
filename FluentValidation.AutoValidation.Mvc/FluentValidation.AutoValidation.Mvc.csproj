@@ -5,7 +5,6 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <TargetFrameworks>netcoreapp3.1;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
         <AssemblyName>SharpGrip.FluentValidation.AutoValidation.Mvc</AssemblyName>
         <PackageId>SharpGrip.FluentValidation.AutoValidation.Mvc</PackageId>
         <Title>SharpGrip FluentValidation AutoValidation MVC</Title>
@@ -18,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.102">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
