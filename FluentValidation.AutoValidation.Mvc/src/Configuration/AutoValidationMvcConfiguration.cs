@@ -30,7 +30,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration
         /// Enables asynchronous automatic validation for parameters bound from <see cref="BindingSource.Form"/> binding sources (typically parameters decorated with the [FromForm] attribute).
         /// </summary>
         /// <see cref="FromFormAttribute"/>
-        public bool EnableFormBindingSourceAutomaticValidation { get; set; } = false;
+        public bool EnableFormBindingSourceAutomaticValidation { get; set; } = true;
 
         /// <summary>
         /// Enables asynchronous automatic validation for parameters bound from <see cref="BindingSource.Query"/> binding sources (typically parameters decorated with the [FromQuery] attribute).
@@ -42,7 +42,7 @@ namespace SharpGrip.FluentValidation.AutoValidation.Mvc.Configuration
         /// Enables asynchronous automatic validation for parameters bound from <see cref="BindingSource.Path"/> binding sources (typically parameters decorated with the [FromRoute] attribute).
         /// </summary>
         /// <see cref="FromRouteAttribute"/>
-        public bool EnablePathBindingSourceAutomaticValidation { get; set; } = false;
+        public bool EnablePathBindingSourceAutomaticValidation { get; set; } = true;
 
         /// <summary>
         /// Enables asynchronous automatic validation for parameters bound from <see cref="BindingSource.Header"/> binding sources (typically parameters decorated with the [FromHeader] attribute).

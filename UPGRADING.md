@@ -4,6 +4,12 @@
 
 ### Upgrade from v1 to v2
 
+#### Configuration - MVC controllers
+The default values of the configuration options below have been changed: 
+
+- `EnableFormBindingSourceAutomaticValidation` from `false` to `true`
+- `EnablePathBindingSourceAutomaticValidation` from `false` to `true`
+
 #### Result factories - MVC controllers
 
 ```diff
