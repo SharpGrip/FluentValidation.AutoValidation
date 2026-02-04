@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
@@ -81,27 +82,27 @@ public class FluentValidationAutoValidationEndpointFilterTest
             RuleFor(x => x.Parameter3).Empty();
         }
 
-        public IValidationContext? BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+        public Task<IValidationContext?> BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext, CancellationToken cancellationToken = default)
         {
-            return null;
+            return Task.FromResult<IValidationContext?>(null);
         }
 
-        public ValidationResult? AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+        public Task<ValidationResult?> AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext, ValidationResult validationResult, CancellationToken cancellationToken = default)
         {
-            return null;
+            return Task.FromResult<ValidationResult?>(null);
         }
     }
 
     private class GlobalValidationInterceptor : IGlobalValidationInterceptor
     {
-        public IValidationContext? BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+        public Task<IValidationContext?> BeforeValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext, CancellationToken cancellationToken = default)
         {
-            return null;
+            return Task.FromResult<IValidationContext?>(null);
         }
 
-        public ValidationResult? AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext)
+        public Task<ValidationResult?> AfterValidation(EndpointFilterInvocationContext endpointFilterInvocationContext, IValidationContext validationContext, ValidationResult validationResult, CancellationToken cancellationToken = default)
         {
-            return null;
+            return Task.FromResult<ValidationResult?>(null);
         }
     }
 }

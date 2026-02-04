@@ -1,6 +1,9 @@
 ﻿// ReSharper disable InconsistentNaming
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -22,7 +25,7 @@ public class FluentValidationAutoValidationDefaultResultFactoryTest
     };
 
     [Fact]
-    public void TestAddFluentValidationAutoValidation_WithConfiguration_DisableBuiltInModelValidation_False()
+    public async Task TestAddFluentValidationAutoValidation_WithConfiguration_DisableBuiltInModelValidation_False()
     {
         var fluentValidationAutoValidationDefaultResultFactory = new FluentValidationAutoValidationDefaultResultFactory();
 
@@ -31,9 +34,10 @@ public class FluentValidationAutoValidationDefaultResultFactoryTest
 
         var validationProblemDetails = new ValidationProblemDetails(ValidationFailures);
         var badRequestObjectResult = new BadRequestObjectResult(validationProblemDetails);
+        var validationResults = new Dictionary<IValidationContext, ValidationResult>();
 
-        var resultFactoryResult = (BadRequestObjectResult) fluentValidationAutoValidationDefaultResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails);
+        var resultFactoryResult = (BadRequestObjectResult?) await fluentValidationAutoValidationDefaultResultFactory.CreateActionResult(actionExecutingContext, validationProblemDetails, validationResults);
 
-        Assert.Equal(badRequestObjectResult.Value, resultFactoryResult.Value);
+        Assert.Equal(badRequestObjectResult.Value, resultFactoryResult?.Value);
     }
 }
